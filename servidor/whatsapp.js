@@ -92,9 +92,11 @@ module.exports = function iniciarWhatsapp({ db, rota, transacao, fmtData }) {
       const motoTx = `${[m.marca, m.modelo].filter(Boolean).join(' ')} (${m.placa || ''})`;
       const nome = String(c.nome || '').split(' ')[0];
       // Variáveis na ordem dos modelos aprovados na Meta (veja o manual): {{1}}, {{2}}...
-      const params = tipo === 'avencer' ? [nome, parc, motoTx, brl(p.valor + enc), fdate(p.venc)]
-        : tipo === 'hoje' ? [nome, parc, motoTx, brl(p.valor + enc)]
-        : [nome, parc, motoTx, brl(p.valor + enc), fdate(p.venc), `${atraso} dia${atraso === 1 ? '' : 's'}`];
+      // último parâmetro: Pix copia e cola da parcela (Asaas) ou, sem ele, a chave Pix da empresa
+      const pix = (p.asaas && p.asaas.pix) || geral.pix || 'fale com a gente';
+      const params = tipo === 'avencer' ? [nome, parc, motoTx, brl(p.valor + enc), fdate(p.venc), pix]
+        : tipo === 'hoje' ? [nome, parc, motoTx, brl(p.valor + enc), pix]
+        : [nome, parc, motoTx, brl(p.valor + enc), fdate(p.venc), `${atraso} dia${atraso === 1 ? '' : 's'}`, pix];
       out.push({ parcelaId: p.id, cliente: c.nome, fone: foneWa(c.fone), tipo, venc: p.venc, valor: p.valor + enc, params });
     }
     return out.sort((a, b) => a.venc.localeCompare(b.venc));

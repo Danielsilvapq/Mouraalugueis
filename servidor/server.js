@@ -98,6 +98,20 @@ function podeGravar(u, c) {
   return c !== 'lanc' && c !== 'config';
 }
 
+// O servidor grava sozinho na parcela a cobrança Pix (Asaas) e a baixa automática. Uma tela que ainda
+// não recebeu essa mudança não pode apagá-las ao salvar outra coisa na mesma parcela.
+function protegerParcela(atual, novo) {
+  const d = { ...novo };
+  if (atual.asaas && !d.asaas) d.asaas = atual.asaas;
+  if (atual.baixaAuto && atual.pago && !d.pago) {
+    for (const k of ['pago', 'dataPg', 'valorPago', 'forma', 'baixaAuto', 'obsPg']) d[k] = atual[k];
+  }
+  const avisos = [...(atual.avisos || [])];
+  for (const a of d.avisos || []) if (!avisos.some((b) => b.data === a.data && b.tipo === a.tipo && !!b.auto === !!a.auto)) avisos.push(a);
+  if (avisos.length) d.avisos = avisos;
+  return d;
+}
+
 const versaoAtual = () => db.prepare('SELECT COALESCE(MAX(versao), 0) v FROM registros').get().v;
 
 function estado(u, desde) {
@@ -137,7 +151,7 @@ function sincronizar(u, ops) {
       const d = op.dados;
       if (!d || typeof d !== 'object' || Array.isArray(d) || d.id !== id) throw new Erro(400, 'Registro inválido');
       if (!podeGravar(u, c)) { recusados++; continue; }
-      const json = JSON.stringify(d);
+      const json = JSON.stringify(c === 'parcelas' && atual ? protegerParcela(JSON.parse(linha.dados), d) : d);
       if (json.length > 200000) throw new Erro(413, 'Registro muito grande');
       gravar.run(c, id, json, ++v, 0, u.id);
     }
@@ -220,6 +234,8 @@ rota('POST', '/api/sync', ({ user, body }) => sincronizar(user, body.ops));
 
 // envio automático de cobranças pelo WhatsApp (desligado até ser configurado)
 require('./whatsapp')({ db, rota, transacao, fmtData });
+// Pix com baixa automática pelo Asaas (desligado até ser configurado)
+require('./asaas')({ db, rota, transacao, fmtData });
 
 // ---------- servidor HTTP ----------
 const TIPOS = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',

@@ -70,6 +70,23 @@ jobs:
             'sudo sh -c "umask 077; cat > /etc/mouraalugueis-whatsapp.env"'
           echo "Token do WhatsApp enviado ao servidor."
 
+      - name: Pix automático pelo Asaas (só se os secrets existirem)
+        env:
+          ASAAS_KEY: ${{ secrets.ASAAS_API_KEY }}
+          ASAAS_WH: ${{ secrets.ASAAS_WEBHOOK_TOKEN }}
+          ASAAS_AMB: ${{ vars.ASAAS_AMBIENTE || 'producao' }}
+        run: |
+          if [ -z "$ASAAS_KEY" ] || [ -z "$ASAAS_WH" ]; then
+            echo "Pix automático ainda não configurado (faltam os secrets ASAAS_API_KEY e ASAAS_WEBHOOK_TOKEN). Seguindo sem ele."
+            exit 0
+          fi
+          case "$ASAAS_AMB" in producao|sandbox) ;; *) echo "::error::ASAAS_AMBIENTE deve ser producao ou sandbox."; exit 1;; esac
+          case "$ASAAS_KEY$ASAAS_WH" in *"'"*|*'"'*|*' '*) echo "::error::A chave ou a senha do webhook têm aspas ou espaço."; exit 1;; esac
+          # a chave do Asaas começa com $ ($aact_...): vai entre aspas simples para o systemd não tentar expandir
+          printf "ASAAS_API_KEY='%s'\nASAAS_WEBHOOK_TOKEN='%s'\nASAAS_AMBIENTE=%s\n" "$ASAAS_KEY" "$ASAAS_WH" "$ASAAS_AMB" | ssh -i ~/.ssh/servidor "$USUARIO@$IP" \
+            'sudo sh -c "umask 077; cat > /etc/mouraalugueis-asaas.env"'
+          echo "Chave do Asaas enviada ao servidor ($ASAAS_AMB)."
+
       - name: Instalar no servidor
         run: ssh -i ~/.ssh/servidor "$USUARIO@$IP" "sudo bash /opt/mouraalugueis/servidor/deploy/instalar.sh '$DOMINIO'"
 

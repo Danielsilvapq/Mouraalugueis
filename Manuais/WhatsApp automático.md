@@ -35,25 +35,26 @@ Separe um **chip só para isso**. Esse número **não pode** estar em uso no apl
 Em **WhatsApp Manager → Modelos de mensagem → Criar modelo**, crie os três abaixo.
 Categoria **Utilidade**, idioma **Português (BR)**. Os nomes precisam ser exatamente estes
 (ou troque os nomes também em Configurações → WhatsApp automático).
-Troque `SUA-CHAVE-PIX` pela chave da empresa. As variáveis `{{1}}`, `{{2}}`... precisam ficar **nesta ordem**.
+As variáveis `{{1}}`, `{{2}}`... precisam ficar **nesta ordem**. A última é o pagamento: com o Pix automático (Asaas)
+ligado, vai o **Pix copia e cola** da parcela; sem ele, vai a chave Pix das Configurações.
 
 **`parcela_a_vencer`**
 ```
-Olá, {{1}}! Aqui é da Moura Aluguéis. Lembramos que a parcela {{2}} do aluguel da moto {{3}}, no valor de {{4}}, vence em {{5}}. Chave Pix: SUA-CHAVE-PIX. Obrigado!
+Olá, {{1}}! Aqui é da Moura Aluguéis. Lembramos que a parcela {{2}} do aluguel da moto {{3}}, no valor de {{4}}, vence em {{5}}. Pague pelo Pix: {{6}}. Obrigado!
 ```
-Exemplos para a Meta: `Carlos` · `5/52` · `Honda CG 160 Fan (QZA-1F23)` · `R$ 300,00` · `20/11/2026`
+Exemplos para a Meta: `Carlos` · `5/52` · `Honda CG 160 Fan (QZA-1F23)` · `R$ 300,00` · `20/11/2026` · `00020126580014br.gov.bcb.pix...`
 
 **`parcela_vence_hoje`**
 ```
-Olá, {{1}}! Aqui é da Moura Aluguéis. A parcela {{2}} do aluguel da moto {{3}}, no valor de {{4}}, vence hoje. Chave Pix: SUA-CHAVE-PIX. Obrigado!
+Olá, {{1}}! Aqui é da Moura Aluguéis. A parcela {{2}} do aluguel da moto {{3}}, no valor de {{4}}, vence hoje. Pague pelo Pix: {{5}}. Obrigado!
 ```
-Exemplos: `Carlos` · `5/52` · `Honda CG 160 Fan (QZA-1F23)` · `R$ 300,00`
+Exemplos: `Carlos` · `5/52` · `Honda CG 160 Fan (QZA-1F23)` · `R$ 300,00` · `00020126580014br.gov.bcb.pix...`
 
 **`parcela_vencida`**
 ```
-Olá, {{1}}! Aqui é da Moura Aluguéis. A parcela {{2}} do aluguel da moto {{3}}, no valor de {{4}}, venceu em {{5}} e está em atraso há {{6}}. Por favor, regularize o pagamento. Chave Pix: SUA-CHAVE-PIX. Se já pagou, desconsidere esta mensagem.
+Olá, {{1}}! Aqui é da Moura Aluguéis. A parcela {{2}} do aluguel da moto {{3}}, no valor de {{4}}, venceu em {{5}} e está em atraso há {{6}}. Por favor, regularize o pagamento pelo Pix: {{7}}. Se já pagou, desconsidere esta mensagem.
 ```
-Exemplos: `Carlos` · `5/52` · `Honda CG 160 Fan (QZA-1F23)` · `R$ 300,00` · `15/11/2026` · `3 dias`
+Exemplos: `Carlos` · `5/52` · `Honda CG 160 Fan (QZA-1F23)` · `R$ 300,00` · `15/11/2026` · `3 dias` · `00020126580014br.gov.bcb.pix...`
 
 O valor `{{4}}` já sai com multa e juros, se estiverem configurados.
 

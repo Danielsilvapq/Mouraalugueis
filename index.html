@@ -196,6 +196,9 @@ const CFG_PADRAO={id:'geral',empresa:'Moura Aluguéis',pix:'',diasAviso:2,multa:
   msgVencida:'Olá, {nome}! Aqui é da {empresa}. A parcela {parcela} do aluguel da moto {moto} ({placa}), no valor de {valor}, venceu em {vencimento} e está em atraso há {dias}. Por favor, regularize o pagamento o quanto antes.{pix} Se já pagou, desconsidere esta mensagem.'};
 const AUTO_PADRAO={id:'auto',ativo:false,hora:'09:00',avencer:true,hoje:true,vencidas:true,intervalo:2,maxAtraso:30,teste:true,foneTeste:'',idioma:'pt_BR',
   modelos:{avencer:'parcela_a_vencer',hoje:'parcela_vence_hoje',vencida:'parcela_vencida'}};
+const PIX_PADRAO={id:'pix',ativo:false,dias:5,encargos:true};
+function cfgPix(){return{...PIX_PADRAO,...(S.config.find(c=>c.id==='pix')||{})}}
+const temPixAuto=p=>!!(p&&!p.pago&&p.asaas&&p.asaas.pix);
 function cfgAuto(){const a=S.config.find(c=>c.id==='auto')||{};return{...AUTO_PADRAO,...a,modelos:{...AUTO_PADRAO.modelos,...(a.modelos||{})}}}
 function vazio(){const o={};COLS.forEach(c=>o[c]=[]);return o}
 function cfg(){return{...CFG_PADRAO,...(S.config.find(c=>c.id==='geral')||{})}}
@@ -283,7 +286,8 @@ function msgParcela(p){const k=contrato(p.contratoId),c=cliente(k.clienteId),m=m
   const tx=(s==='vencida'?g.msgVencida:g.msgAvencer)||'';
   const tot=k.qtd?`${p.n}/${k.qtd}`:`nº ${p.n}`;
   const rep={nome:(c?c.nome:'').split(' ')[0],nome_completo:c?c.nome:'',empresa:g.empresa,parcela:tot,moto:motoNome(m),placa:m?m.placa:'',valor:brl(devido(p)),
-    vencimento:fdate(p.venc),quando,dias:`${at} dia${at===1?'':'s'}`,pix:g.pix?` Chave Pix: ${g.pix}.`:''};
+    vencimento:fdate(p.venc),quando,dias:`${at} dia${at===1?'':'s'}`,
+    pix:temPixAuto(p)?`\n\nPix copia e cola:\n${p.asaas.pix}\n`:g.pix?` Chave Pix: ${g.pix}.`:'',link:p.asaas&&p.asaas.url?p.asaas.url:''};
   return tx.replace(/\{(\w+)\}/g,(x,n)=>n in rep?rep[n]:x)}
 function whatsParcela(pid){const p=S.parcelas.find(x=>x.id===pid),k=contrato(p.contratoId),c=cliente(k.clienteId);
   const nro=foneWa(c&&c.fone);
@@ -407,18 +411,19 @@ function vCobrancas(){
       return`<tr><td><b>${h(c?c.nome:'—')}</b><small>${h(fone(c&&c.fone))}</small></td><td class="nw">${h(m?m.placa:'—')}<small>${h(motoNome(m))}</small></td>
       <td class="nw">${k.qtd?p.n+'/'+k.qtd:'nº '+p.n}<small>${h(k.freq)}</small></td><td class="nw">${fdate(p.venc)}${p.pago?`<small>pago ${fdate(p.dataPg)}${p.forma?' · '+h(p.forma):''}</small>`:''}</td>
       <td class="num">${brl(p.pago?num(p.valorPago||p.valor):devido(p))}${enc?`<small>+ ${brl(enc)} encargos</small>`:''}</td>
-      <td>${pillSit(p)}${avisadoHoje(p)?`<small>${avisoHojeTx(p).toLowerCase()}</small>`:''}</td>
-      <td class="acts">${p.pago?`<button class="lnk" onclick="recibo('${p.id}')">Recibo</button><button class="lnk bad" onclick="desfazerPg('${p.id}')">Desfazer</button>`:`<button class="lnk" style="color:var(--wa)" onclick="whatsParcela('${p.id}')">WhatsApp</button><button class="lnk" onclick="receber('${p.id}')">Receber</button>`}</td></tr>`}).join('')}
+      <td>${pillSit(p)}${avisadoHoje(p)?`<small>${avisoHojeTx(p).toLowerCase()}</small>`:''}${temPixAuto(p)?'<small>Pix gerado · baixa automática</small>':''}${p.pago&&p.baixaAuto?'<small>baixa automática</small>':''}</td>
+      <td class="acts">${p.pago?`<button class="lnk" onclick="recibo('${p.id}')">Recibo</button><button class="lnk bad" onclick="desfazerPg('${p.id}')">Desfazer</button>`:`${temPixAuto(p)?`<button class="lnk" onclick="copiarPix('${p.id}')">Copiar Pix</button>`:''}<button class="lnk" style="color:var(--wa)" onclick="whatsParcela('${p.id}')">WhatsApp</button><button class="lnk" onclick="receber('${p.id}')">Receber</button>`}</td></tr>`}).join('')}
     </tbody></table></div>`:'<p class="vazio">Nenhuma parcela aqui.</p>'}</div></section>`}
 function atualizaLista(){const v=view,html=({cobrancas:vCobrancas,motos:vMotos,clientes:vClientes,contratos:vContratos,manut:vManut}[v]||(()=>''))();
   const tmp=document.createElement('div');tmp.innerHTML=html;const n=tmp.querySelector('#lst'),a=$('#lst');if(n&&a)a.innerHTML=n.innerHTML}
 function receber(pid){const p=S.parcelas.find(x=>x.id===pid),k=contrato(p.contratoId),c=cliente(k.clienteId),g=cfg(),enc=encargos(p);
-  const fs=[{t:'dica',l:`<b>${h(c?c.nome:'')}</b> · parcela ${k.qtd?p.n+'/'+k.qtd:p.n} · vencimento ${fdate(p.venc)} · valor ${brl(p.valor)}${enc?` + ${brl(enc)} de multa/juros`:''}`},
+  const fs=[{t:'dica',l:`<b>${h(c?c.nome:'')}</b> · parcela ${k.qtd?p.n+'/'+k.qtd:p.n} · vencimento ${fdate(p.venc)} · valor ${brl(p.valor)}${enc?` + ${brl(enc)} de multa/juros`:''}${temPixAuto(p)?'<br>Esta parcela tem cobrança Pix no Asaas. Se o Pix foi pago por lá, a baixa é automática: não precisa receber aqui. Recebendo à mão, a cobrança no Asaas é cancelada.':''}`},
     {k:'valorPago',l:'Valor recebido',t:'money',req:1,v:devido(p).toFixed(2)},{k:'dataPg',l:'Data do pagamento',t:'date',req:1,v:hoje()},
     {k:'forma',l:'Forma de pagamento',t:'select',o:g.formas,v:g.formas[0]},{k:'obsPg',l:'Observação',v:''}];
   abrirModal('Receber parcela',campos(fs),()=>{const d=ler(fs);if(!d)return false;if(d.valorPago<=0){erroModal('Informe o valor recebido.');return false}
     Object.assign(p,d,{pago:true});commit('Pagamento registrado')},'Confirmar recebimento')}
 function desfazerPg(pid){const p=S.parcelas.find(x=>x.id===pid);
+  if(p.baixaAuto){abrirModal('Pagamento pelo Asaas','<p style="margin:0">Este pagamento caiu pelo Pix do Asaas e a baixa foi automática. Para devolver o dinheiro, faça o estorno no painel do Asaas.</p>',null);return}
   confirmar('Desfazer pagamento',`A parcela de ${fdate(p.venc)} volta a ficar em aberto e o valor sai do recebido.`,()=>{Object.assign(p,{pago:false,dataPg:'',valorPago:0,forma:'',obsPg:''});commit('Pagamento desfeito')},'Desfazer')}
 function recibo(pid){const p=S.parcelas.find(x=>x.id===pid),k=contrato(p.contratoId),c=cliente(k.clienteId),m=moto(k.motoId),g=cfg();
   const tx=`Recibo — ${g.empresa}\n\nRecebemos de ${c?c.nome:''}${c&&c.cpf?` (CPF ${c.cpf})`:''} o valor de ${brl(p.valorPago||p.valor)}, referente à parcela ${k.qtd?p.n+'/'+k.qtd:p.n} do aluguel da moto ${motoNome(m)} placa ${m?m.placa:''}, com vencimento em ${fdate(p.venc)}.\nPago em ${fdate(p.dataPg)}${p.forma?' via '+p.forma:''}.`;
@@ -555,7 +560,7 @@ function vClientes(){const b=F.busca.toLowerCase();
     <td class="acts"><button class="lnk" onclick="formCliente('${c.id}')">Editar</button></td></tr>`}).join('')}
   </tbody></table></div>`:'<p class="vazio">Nenhum cliente cadastrado.</p>'}</div></section>`}
 function formCliente(id){const c=id?cliente(id):{nome:'',cpf:'',rg:'',fone:'',email:'',nasc:'',cnh:'',cnhCat:'A',cnhVal:'',end:'',ref:'',obs:'',ativo:true};
-  const fs=[{k:'nome',l:'Nome completo',req:1,v:c.nome,w:1},{k:'fone',l:'Celular / WhatsApp',req:1,v:fone(c.fone),ph:'(92) 99999-9999',t:'tel'},{k:'cpf',l:'CPF',v:c.cpf,ph:'000.000.000-00'},
+  const fs=[{k:'nome',l:'Nome completo',req:1,v:c.nome,w:1},{k:'fone',l:'Celular / WhatsApp',req:1,v:fone(c.fone),ph:'(92) 99999-9999',t:'tel'},{k:'cpf',l:'CPF (obrigatório para o Pix automático)',v:c.cpf,ph:'000.000.000-00'},
     {k:'rg',l:'RG',v:c.rg},{k:'nasc',l:'Data de nascimento',t:'date',v:c.nasc},
     {t:'h4',l:'Habilitação'},{k:'cnh',l:'Nº da CNH',v:c.cnh},{k:'cnhCat',l:'Categoria',t:'select',o:['A','AB','AC','AD','AE'],v:c.cnhCat},{k:'cnhVal',l:'Validade da CNH',t:'date',v:c.cnhVal},{k:'email',l:'E-mail',t:'email',v:c.email},
     {t:'h4',l:'Endereço e referência'},{k:'end',l:'Endereço',v:c.end,w:1},{k:'ref',l:'Contato de referência (nome e telefone)',v:c.ref,w:1},
@@ -640,8 +645,43 @@ function vConfig(){const g=cfg();
     {k:'multa',l:'Multa por atraso (%)',t:'money',v:g.multa},{k:'juros',l:'Juros por dia de atraso (%)',t:'money',v:g.juros},
     {t:'dica',l:'Deixe multa e juros em 0 para cobrar só o valor da parcela.'},
     {t:'h4',l:'Mensagens do WhatsApp'},{k:'msgAvencer',l:'Parcela a vencer',t:'area',v:g.msgAvencer,w:1},{k:'msgVencida',l:'Parcela vencida',t:'area',v:g.msgVencida,w:1},
-    {t:'dica',l:'Use: {nome} {nome_completo} {empresa} {parcela} {moto} {placa} {valor} {vencimento} {quando} {dias} {pix}'}])}
-  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap"><button type="button" class="btn sec" onclick="padraoMsgs()">Mensagens padrão</button><button class="btn">Salvar</button></div><div class="merr" id="merr" hidden style="margin-top:10px"></div></form></section>`+vAuto()}
+    {t:'dica',l:'Use: {nome} {nome_completo} {empresa} {parcela} {moto} {placa} {valor} {vencimento} {quando} {dias} {pix} {link}. Com o Pix automático ligado, {pix} vira o Pix copia e cola da parcela e {link} o link de pagamento.'}])}
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap"><button type="button" class="btn sec" onclick="padraoMsgs()">Mensagens padrão</button><button class="btn">Salvar</button></div><div class="merr" id="merr" hidden style="margin-top:10px"></div></form></section>`+vAuto()+vPix()}
+/* ---------- Pix com baixa automática pelo Asaas (preparado; liga depois) ---------- */
+let PXST=null;
+const EV_PIX={baixa:['Pago','p-ok'],criada:['Cobrança criada','p-info'],cancelada:['Cancelada','p-mut'],erro:['Erro','p-bad'],alerta:['Atenção','p-warn']};
+function copiarPix(pid){const p=S.parcelas.find(x=>x.id===pid);const tx=p.asaas.pix;
+  (navigator.clipboard?navigator.clipboard.writeText(tx):Promise.reject()).then(()=>toast('Pix copia e cola copiado')).catch(()=>{
+    abrirModal('Pix copia e cola',`<div class="form"><label class="w">Copie o código<textarea id="px_txt" rows="5" readonly>${h(tx)}</textarea></label></div>`,null);setTimeout(()=>$('#px_txt').select(),50)})}
+function vPix(){const a=cfgPix();
+  if(ONLINE&&!PXST)setTimeout(carregarPix);
+  const conf=ONLINE?(PXST?PXST.configurado:null):false;
+  const st=!ONLINE?['Só na versão online','p-mut']:conf===null?['Verificando…','p-mut']:!conf?['Aguardando chave do Asaas','p-warn']:!a.ativo?['Pronto, mas desligado','p-info']:PXST.ambiente==='sandbox'?['Ligado (ambiente de teste)','p-warn']:['Ligado','p-ok'];
+  const hook=(ONLINE?location.origin:'https://SEU-ENDERECO')+'/api/asaas/webhook';
+  return`<section class="card" id="pix-auto"><h2>Pix com baixa automática (Asaas) <span class="pill ${st[1]}">${st[0]}</span></h2>
+  <p class="mut" style="margin:0 0 14px;font-size:14px">Quando ligado, cada parcela ganha uma cobrança Pix própria no Asaas, com <b>Pix copia e cola</b> e link de pagamento, que vão nas mensagens do WhatsApp.
+  Quando o motorista paga, a parcela fica <b>paga sozinha</b>. Recebeu à mão? A cobrança no Asaas é cancelada. Enquanto não estiver configurado, tudo segue manual. Passo a passo: <b>Manuais/Pix automático (Asaas).md</b>.</p>
+  <form id="pixf" onsubmit="salvarPix(event)">${campos([
+    {k:'pxativo',l:'Pix automático',t:'select',o:[['0','Desligado'],['1','Ligado']],v:a.ativo?'1':'0'},
+    {k:'pxdias',l:'Gerar a cobrança quantos dias antes do vencimento',t:'number',v:a.dias},
+    {k:'pxenc',l:'Cobrar multa e juros no Pix (das Configurações acima)',t:'select',o:[['1','Sim'],['0','Não']],v:a.encargos?'1':'0'},
+    {t:'dica',l:`O Asaas exige o <b>CPF</b> do motorista: confira os cadastros. Endereço para o webhook no Asaas: <b>${h(hook)}</b>`}])}
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap">
+    ${ONLINE&&conf&&a.ativo?'<button type="button" class="btn sec" onclick="sincronizarPix()">Gerar e conferir agora</button>':''}<button class="btn">Salvar</button></div></form>
+  ${ONLINE&&PXST&&PXST.eventos.length?`<h4 style="margin:18px 0 6px">Últimos acontecimentos <small class="mut" style="font-weight:400">· ${PXST.abertas} cobrança(s) em aberto no Asaas</small></h4>
+  <div class="tbl-wrap"><table style="min-width:600px"><thead><tr><th>Quando</th><th>Cliente</th><th class="num">Valor</th><th>O quê</th></tr></thead><tbody>
+  ${PXST.eventos.map(e=>{const t=EV_PIX[e.tipo]||[e.tipo,'p-mut'];return`<tr><td class="nw">${h(e.criado_em.slice(8,10)+'/'+e.criado_em.slice(5,7)+' '+e.criado_em.slice(11,16))}</td><td>${h(e.cliente||'—')}</td><td class="num">${e.valor?brl(e.valor):''}</td>
+    <td><span class="pill ${t[1]}">${t[0]}</span><small>${h(e.detalhe)}</small></td></tr>`}).join('')}
+  </tbody></table></div>`:''}</section>`}
+async function carregarPix(){try{PXST=await api('GET','/api/asaas/status');if(view==='config'&&podeRender())render()}catch(e){PXST={configurado:false,eventos:[],abertas:0}}}
+function sincronizarPix(){api('POST','/api/asaas/sincronizar').then(r=>{if(r.erro)toast(r.erro);else toast(`${r.criadas} criada(s), ${r.baixas} paga(s), ${r.canceladas} cancelada(s)${r.erros?`, ${r.erros} erro(s)`:''}`);PXST=null;puxar();render()}).catch(x=>toast(x.message))}
+function salvarPix(e){e.preventDefault();const v=k=>$('#f_'+k).value.trim();
+  const n={...cfgPix(),ativo:v('pxativo')==='1',dias:Math.max(0,Math.round(num(v('pxdias')))),encargos:v('pxenc')==='1'};
+  const sem=!n.ativo?[]:S.contratos.filter(k=>k.status==='Ativo').map(k=>cliente(k.clienteId)).filter(c=>c&&![11,14].includes(digitos(c.cpf).length));
+  if(sem.length)setTimeout(()=>toast(`Atenção: ${sem.length} motorista(s) com aluguel ativo sem CPF. Sem CPF não sai o Pix automático.`))
+  const i=S.config.findIndex(c=>c.id==='pix');if(i>=0)S.config[i]=n;else S.config.push(n);
+  commit(n.ativo&&!sem.length?'Pix automático ligado':n.ativo?'':'Configuração salva');if(n.ativo&&ONLINE)setTimeout(()=>{PXST=null;render()},1500)}
+
 /* ---------- WhatsApp automático (preparado; liga depois) ---------- */
 let WAST=null,WAPREV=null;
 const TIPO_WA={avencer:'A vencer',hoje:'Vence hoje',vencida:'Vencida'};

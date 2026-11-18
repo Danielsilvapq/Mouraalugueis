@@ -15,11 +15,13 @@ geradas automaticamente, cobrança pelo WhatsApp, manutenção e financeiro.
 - **Manutenção:** serviços, custo, oficina e a próxima por KM ou data (avisa 300 km ou 7 dias antes).
 - **Financeiro** (só administrador): parcelas recebidas e manutenções entram sozinhas; IPVA, seguro, rastreador etc. entram como lançamento. Mostra o resultado do mês e por moto.
 - **Configurações** (só administrador): nome da empresa, chave Pix, dias de aviso, multa e juros por atraso e os textos das mensagens.
+- **Pix com baixa automática** (preparado, desligado): cada parcela ganha um Pix copia e cola no Asaas e fica paga sozinha quando o motorista paga. Veja `Manuais/Pix automático (Asaas).md`.
 - **WhatsApp automático** (preparado, desligado): envio diário das cobranças pela API oficial da Meta, com modo teste, prévia e histórico. Para ligar, veja `Manuais/WhatsApp automático.md`.
 - **Acessos** (online): administrador vê tudo; equipe não vê financeiro, configurações nem acessos.
 
 ## Como está organizado
 - `index.html` — a tela do sistema (demonstração e online).
+- `servidor/asaas.js` — Pix com baixa automática pelo Asaas (só funciona depois de configurado).
 - `servidor/whatsapp.js` — envio automático de cobranças pelo WhatsApp (só funciona depois de configurado).
 - `servidor/server.js` — servidor em Node.js (22.13+), sem dependências, banco SQLite em `servidor/dados/`, senha criptografada, bloqueio após 5 tentativas erradas e backup diário (30 dias).
 - `servidor/deploy/instalar.sh` — instala/atualiza num Ubuntu (serviço `mouraalugueis`, Caddy com HTTPS automático, porta própria; convive com outros sistemas no mesmo servidor).

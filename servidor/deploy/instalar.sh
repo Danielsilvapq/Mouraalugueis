@@ -73,6 +73,8 @@ Environment=HOST=127.0.0.1 TRUST_PROXY=1 TZ=America/Manaus RAIZ=$APP
 EnvironmentFile=$ENV_FILE
 # token do WhatsApp (só existe depois de configurar; veja Manuais/WhatsApp automático.md)
 EnvironmentFile=-/etc/mouraalugueis-whatsapp.env
+# chave do Asaas (Pix com baixa automática; veja Manuais/Pix automático (Asaas).md)
+EnvironmentFile=-/etc/mouraalugueis-asaas.env
 ExecStart=/usr/bin/node --no-warnings server.js
 Restart=always
 RestartSec=3
