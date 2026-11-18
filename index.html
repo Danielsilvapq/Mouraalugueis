@@ -1,0 +1,741 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Moura Aluguéis</title>
+<link rel="icon" href="assets/icone.svg" type="image/svg+xml">
+<style>
+:root{
+  --bg:#F4F3F1;--card:#FFFFFF;--ink:#1B1A19;--mut:#6B6762;--line:#E4E1DC;--soft:#F7F6F4;
+  --side:#17191C;--side-ink:#E9E7E3;--side-mut:#8D8A85;
+  --pri:#E8590C;--pri-ink:#FFFFFF;--pri-soft:#FDEBDF;
+  --ok:#2F855A;--ok-soft:#E3F3EA;--warn:#B7791F;--warn-soft:#FBF1DC;--bad:#C53030;--bad-soft:#FBE3E3;--info:#2B6CB0;--info-soft:#E2EDF8;
+  --wa:#1FA855;--shadow:0 1px 2px rgba(0,0,0,.05),0 2px 8px rgba(0,0,0,.04);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#121315;--card:#1B1D20;--ink:#ECEAE6;--mut:#9C9893;--line:#2C2F33;--soft:#202327;
+  --side:#0C0D0E;--side-ink:#E9E7E3;--side-mut:#7F7C77;
+  --pri:#F07A35;--pri-ink:#16110D;--pri-soft:#3A2416;
+  --ok:#5CC08A;--ok-soft:#1C3127;--warn:#E0B25A;--warn-soft:#3A2F17;--bad:#F07575;--bad-soft:#3D1F1F;--info:#7DB1E8;--info-soft:#1B2A3B;
+  --wa:#3DCB74;--shadow:none;color-scheme:dark;
+}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--pri)}
+.app{display:grid;grid-template-columns:232px 1fr;min-height:100vh}
+.side{background:var(--side);color:var(--side-ink);padding:18px 12px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:4px}
+.marca{display:flex;align-items:center;gap:10px;padding:4px 8px 18px}
+.marca svg{flex:none}
+.marca b{display:block;font-size:16px;letter-spacing:.2px}
+.marca small{color:var(--side-mut);font-size:12px}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav button{all:unset;cursor:pointer;display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;color:var(--side-ink);font-size:14.5px}
+.nav button:hover{background:rgba(255,255,255,.06)}
+.nav button.on{background:var(--pri);color:#fff}
+.nav button:focus-visible{outline:2px solid var(--pri);outline-offset:2px}
+.nav .ct{margin-left:auto;background:var(--bad);color:#fff;border-radius:99px;font-size:11.5px;padding:1px 7px;font-weight:600}
+.nav button.on .ct{background:#fff;color:var(--pri)}
+.side .rod{margin-top:auto;padding:12px 8px 0;border-top:1px solid rgba(255,255,255,.08);font-size:13px;color:var(--side-mut)}
+.side .rod b{color:var(--side-ink);display:block;font-weight:600}
+.side .rod button{all:unset;cursor:pointer;color:var(--side-mut);text-decoration:underline;margin-right:10px;font-size:12.5px}
+main{padding:24px 28px 60px;min-width:0;max-width:1240px}
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.head h1{margin:0;font-size:24px;letter-spacing:-.3px}
+.head p{margin:2px 0 0;color:var(--mut);font-size:14px}
+.head .acoes{display:flex;gap:8px;flex-wrap:wrap}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;box-shadow:var(--shadow);margin-bottom:16px}
+.card h2{margin:0 0 12px;font-size:16px;display:flex;align-items:baseline;gap:4px 8px;flex-wrap:wrap}
+.card h2 small{color:var(--mut);font-weight:400;font-size:13px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow)}
+.kpi span{color:var(--mut);font-size:13px;display:block}
+.kpi b{font-size:22px;letter-spacing:-.3px;display:block;margin-top:2px;font-variant-numeric:tabular-nums}
+.kpi small{color:var(--mut);font-size:12.5px}
+.kpi.bad b{color:var(--bad)}.kpi.ok b{color:var(--ok)}.kpi.warn b{color:var(--warn)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid2>.card{margin-bottom:0}
+.btn{border:1px solid transparent;background:var(--pri);color:var(--pri-ink);border-radius:8px;padding:8px 14px;cursor:pointer;font-weight:600;font-size:14px;white-space:nowrap}
+.btn:hover{filter:brightness(1.05)}
+.btn.sec{background:var(--card);color:var(--ink);border-color:var(--line)}
+.btn.sec:hover{background:var(--soft)}
+.btn.bad{background:var(--bad);color:#fff}
+.btn.wa{background:var(--wa);color:#fff}
+.btn.pq{padding:5px 10px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:default}
+.lnk{all:unset;cursor:pointer;color:var(--pri);font-size:13.5px;font-weight:500}
+.lnk:hover{text-decoration:underline}.lnk.bad{color:var(--bad)}
+.lnk:focus-visible,.btn:focus-visible{outline:2px solid var(--pri);outline-offset:2px}
+.tbl-wrap{overflow-x:auto;margin:0 -16px;padding:0 16px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;color:var(--mut);font-weight:500;font-size:12.5px;text-transform:uppercase;letter-spacing:.3px;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:10px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+td small{display:block;color:var(--mut);font-size:12.5px}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+td.nw{white-space:nowrap}
+td.acts{text-align:right;white-space:nowrap}
+td.acts>*+*{margin-left:12px}
+.pill{display:inline-block;border-radius:99px;padding:2px 9px;font-size:12.5px;font-weight:600;white-space:nowrap}
+.p-ok{background:var(--ok-soft);color:var(--ok)}.p-bad{background:var(--bad-soft);color:var(--bad)}.p-warn{background:var(--warn-soft);color:var(--warn)}
+.p-info{background:var(--info-soft);color:var(--info)}.p-mut{background:var(--soft);color:var(--mut);border:1px solid var(--line)}.p-pri{background:var(--pri-soft);color:var(--pri)}
+.vazio{color:var(--mut);text-align:center;padding:22px 8px;margin:0}
+.filtros{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.filtros input,.filtros select{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:8px 10px;min-width:0}
+.filtros input{flex:1 1 220px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--card);border-radius:99px;padding:5px 12px;cursor:pointer;font-size:13.5px}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.mut{color:var(--mut)}
+.lista{display:flex;flex-direction:column}
+.item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:0}
+.item .tx{flex:1;min-width:0}
+.item .tx b{display:block}
+.item .tx small{color:var(--mut);font-size:13px}
+.item .vl{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.item .bt{display:flex;gap:6px;flex:none}
+.demo{background:var(--warn-soft);color:var(--warn);border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:13.5px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.demo button{all:unset;cursor:pointer;text-decoration:underline;font-weight:600}
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(10,10,10,.5);display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;z-index:50;overflow-y:auto}
+.modal[hidden]{display:none}
+.mbox{background:var(--card);border-radius:14px;width:100%;max-width:620px;box-shadow:0 10px 40px rgba(0,0,0,.25);border:1px solid var(--line)}
+.mbox.larga{max-width:860px}
+.mhd{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--line)}
+.mhd h3{margin:0;font-size:17px}
+.mhd button{all:unset;cursor:pointer;font-size:22px;line-height:1;color:var(--mut);padding:0 4px}
+.mbd{padding:16px 18px}
+.mft{display:flex;justify-content:flex-end;gap:8px;padding:12px 18px 16px;flex-wrap:wrap}
+.merr{background:var(--bad-soft);color:var(--bad);border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:14px}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px}
+.form label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--mut);font-weight:500;min-width:0}
+.form label.w{grid-column:1/-1}
+.form input,.form select,.form textarea{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:9px 10px;font-size:15px;color:var(--ink);width:100%;min-width:0}
+.form textarea{min-height:120px;resize:vertical}
+.form input:focus,.form select:focus,.form textarea:focus,.filtros input:focus,.filtros select:focus{outline:2px solid var(--pri);outline-offset:-1px;border-color:transparent}
+.form .dica{grid-column:1/-1;font-size:13px;color:var(--mut);margin:-4px 0 0}
+.form h4{grid-column:1/-1;margin:6px 0 -4px;font-size:13px;text-transform:uppercase;letter-spacing:.4px;color:var(--mut)}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;z-index:60;font-size:14px;max-width:calc(100% - 32px);box-shadow:0 6px 20px rgba(0,0,0,.2)}
+.rede{position:fixed;top:0;left:0;right:0;background:var(--bad);color:#fff;text-align:center;padding:6px;font-size:13px;z-index:70}
+.resumo{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.resumo div{background:var(--soft);border-radius:10px;padding:10px 12px}
+.resumo span{font-size:12.5px;color:var(--mut);display:block}
+.resumo b{font-variant-numeric:tabular-nums}
+.login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px;background:var(--side)}
+.login form{background:var(--card);border-radius:16px;padding:28px 24px;width:100%;max-width:360px;display:flex;flex-direction:column;gap:12px}
+.login h1{margin:6px 0 0;font-size:21px;text-align:center}
+.login p{margin:0 0 6px;color:var(--mut);text-align:center;font-size:14px}
+.login input{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:10px 12px;font-size:16px}
+.login .btn{padding:11px}
+.wa-ic{width:15px;height:15px;vertical-align:-3px;margin-right:4px;fill:currentColor}
+@media (max-width:860px){
+  .app{grid-template-columns:1fr}
+  .side{position:sticky;top:0;height:auto;z-index:20;flex-direction:row;align-items:center;padding:8px 10px;gap:8px;overflow:hidden}
+  .marca{padding:0 4px 0 0}.marca div{display:none}
+  .nav{flex-direction:row;overflow-x:auto;gap:4px;flex:1;scrollbar-width:none}
+  .nav::-webkit-scrollbar{display:none}
+  .nav button{padding:7px 10px;font-size:14px;white-space:nowrap}
+  .side .rod{display:none}
+  main{padding:16px 16px 60px}
+  .grid2{grid-template-columns:1fr}
+  .head h1{font-size:21px}
+  .form{grid-template-columns:1fr}
+  .kpis{grid-template-columns:1fr 1fr;gap:10px}
+  .kpi b{font-size:19px}
+  .item{flex-wrap:wrap}
+  .item .bt{width:100%;justify-content:flex-end}
+  .modal{padding:12px}
+  .conta{display:block!important}
+}
+.conta{display:none}
+@media print{.side,.head .acoes,.demo,.filtros{display:none!important}.app{display:block}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mtit"></div>
+<script>
+'use strict';
+/* ---------- utilidades ---------- */
+const $=s=>document.querySelector(s);
+const h=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const brl=n=>(Number(n)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const num=v=>{if(typeof v==='number')return v;const s=String(v||'').trim().replace(/[^\d,.-]/g,'');if(!s)return 0;return Number(s.includes(',')?s.replace(/\./g,'').replace(',','.'):s)||0};
+const p2=n=>String(n).padStart(2,'0');
+const iso=d=>`${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`;
+const dt=s=>{const[y,m,d]=String(s).split('-').map(Number);return new Date(y,m-1,d)};
+const hoje=()=>iso(new Date());
+const addDias=(s,n)=>{const d=dt(s);d.setDate(d.getDate()+n);return iso(d)};
+const addMeses=(s,n)=>{const d=dt(s),dia=d.getDate();const r=new Date(d.getFullYear(),d.getMonth()+n,1);r.setDate(Math.min(dia,new Date(r.getFullYear(),r.getMonth()+1,0).getDate()));return iso(r)};
+const difDias=(a,b)=>Math.round((dt(b)-dt(a))/864e5); // b - a
+const fdate=s=>{if(!s)return'—';const[y,m,d]=s.split('-');return`${d}/${m}/${y}`};
+const fdc=s=>{if(!s)return'—';const[,m,d]=s.split('-');return`${d}/${m}`};
+const MESES=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+const fmes=c=>{const[y,m]=c.split('-');return MESES[m-1]+' de '+y};
+const uid=p=>p+'-'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const digitos=s=>String(s||'').replace(/\D/g,'');
+const fone=s=>{const d=digitos(s);if(d.length===11)return`(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`;if(d.length===10)return`(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}`;return s||''};
+const foneWa=s=>{let d=digitos(s);if(d.startsWith('0'))d=d.replace(/^0+/,'');if(d.length===10||d.length===11)d='55'+d;return d.length>=12?d:''};
+const placaFmt=s=>String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,'').replace(/^([A-Z]{3})(\d[A-Z0-9]\d{2})$/,'$1-$2');
+const WA_IC='<svg class="wa-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.7.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3Z"/></svg>';
+const LOGO='<svg width="34" height="34" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#E8590C"/><circle cx="18" cy="42" r="8" fill="none" stroke="#fff" stroke-width="4"/><circle cx="47" cy="42" r="8" fill="none" stroke="#fff" stroke-width="4"/><path d="M18 42l9-14h11l9 14M30 28l-4-6h-5M38 28l4-8h6" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+/* ---------- dados ---------- */
+const ONLINE=!!window.MA_ONLINE;
+const KEY='moura-demo-v1';
+const COLS=['motos','clientes','contratos','parcelas','manut','lanc','config'];
+const FREQ={Semanal:7,Quinzenal:14,Mensal:0,Diária:1};
+const TIPOS_MANUT=['Troca de óleo','Revisão','Pneu','Freio','Relação (corrente, coroa, pinhão)','Elétrica','Suspensão','Funilaria / carenagem','Documentação','Outro'];
+const CAT_DESP=['IPVA / licenciamento','Seguro','Rastreador','Multa','Compra de moto','Peças (estoque)','Aluguel do espaço','Salários','Impostos','Outros'];
+const CAT_REC=['Caução recebida','Venda de moto','Multa repassada','Outros'];
+const CFG_PADRAO={id:'geral',empresa:'Moura Aluguéis',pix:'',diasAviso:2,multa:0,juros:0,formas:['Pix','Dinheiro','Cartão','Transferência'],
+  msgAvencer:'Olá, {nome}! Aqui é da {empresa}. Passando para lembrar que a parcela {parcela} do aluguel da moto {moto} ({placa}), no valor de {valor}, vence {quando} ({vencimento}).{pix} Obrigado!',
+  msgVencida:'Olá, {nome}! Aqui é da {empresa}. A parcela {parcela} do aluguel da moto {moto} ({placa}), no valor de {valor}, venceu em {vencimento} e está em atraso há {dias}. Por favor, regularize o pagamento o quanto antes.{pix} Se já pagou, desconsidere esta mensagem.'};
+function vazio(){const o={};COLS.forEach(c=>o[c]=[]);return o}
+function cfg(){return{...CFG_PADRAO,...(S.config.find(c=>c.id==='geral')||{})}}
+
+function seed(){
+  const d=vazio(),t=hoje();
+  d.motos=[
+    {id:'m1',placa:'QZA-1F23',marca:'Honda',modelo:'CG 160 Fan',ano:'2023',cor:'Preta',km:18450,renavam:'',chassi:'',status:'Disponível',obs:''},
+    {id:'m2',placa:'QZB-4H56',marca:'Honda',modelo:'CG 160 Start',ano:'2022',cor:'Vermelha',km:27310,renavam:'',chassi:'',status:'Disponível',obs:''},
+    {id:'m3',placa:'RAC-7J89',marca:'Yamaha',modelo:'Factor 150',ano:'2023',cor:'Azul',km:15020,renavam:'',chassi:'',status:'Disponível',obs:''},
+    {id:'m4',placa:'RAD-2K34',marca:'Honda',modelo:'Pop 110i',ano:'2024',cor:'Branca',km:6840,renavam:'',chassi:'',status:'Disponível',obs:''},
+    {id:'m5',placa:'QZE-5L67',marca:'Honda',modelo:'NXR 160 Bros',ano:'2022',cor:'Preta',km:33980,renavam:'',chassi:'',status:'Manutenção',obs:'Revisão do motor'},
+    {id:'m6',placa:'RAF-8M90',marca:'Yamaha',modelo:'YBR 150 Factor',ano:'2021',cor:'Prata',km:41200,renavam:'',chassi:'',status:'Disponível',obs:''}];
+  d.clientes=[
+    {id:'c1',nome:'Carlos Henrique Souza',cpf:'123.456.789-00',fone:'92991234567',cnh:'01234567890',cnhCat:'A',cnhVal:addDias(t,420),nasc:'1994-03-12',end:'Rua das Flores, 120 — Cidade Nova',ref:'Maria (mãe) 92 99876-5432',obs:'Entregador iFood',ativo:true},
+    {id:'c2',nome:'Juliana Martins',cpf:'987.654.321-00',fone:'92988887777',cnh:'09876543210',cnhCat:'AB',cnhVal:addDias(t,25),nasc:'1990-07-21',end:'Av. Torquato Tapajós, 3300',ref:'',obs:'',ativo:true},
+    {id:'c3',nome:'Rafael Lima',cpf:'456.789.123-00',fone:'92977776666',cnh:'05556667778',cnhCat:'A',cnhVal:addDias(t,800),nasc:'1998-11-02',end:'Rua Rio Mar, 45 — Compensa',ref:'Jorge (irmão) 92 98123-4567',obs:'',ativo:true},
+    {id:'c4',nome:'Diego Ferreira',cpf:'321.654.987-00',fone:'92966665555',cnh:'07778889990',cnhCat:'A',cnhVal:addDias(t,300),nasc:'1996-01-30',end:'Rua Itaúba, 18 — Jorge Teixeira',ref:'',obs:'Motoboy de farmácia',ativo:true}];
+  d.contratos=[
+    {id:'k1',clienteId:'c1',motoId:'m1',inicio:addDias(t,-61),primeiroVenc:addDias(t,-61),freq:'Semanal',valor:300,qtd:0,caucao:500,kmIni:15900,status:'Ativo',obs:''},
+    {id:'k2',clienteId:'c2',motoId:'m3',inicio:addDias(t,-34),primeiroVenc:addDias(t,-34),freq:'Semanal',valor:320,qtd:52,caucao:500,kmIni:13800,status:'Ativo',obs:''},
+    {id:'k3',clienteId:'c3',motoId:'m2',inicio:addDias(t,-90),primeiroVenc:addDias(t,-90),freq:'Quinzenal',valor:580,qtd:0,caucao:600,kmIni:23100,status:'Ativo',obs:''},
+    {id:'k4',clienteId:'c4',motoId:'m4',inicio:addDias(t,-13),primeiroVenc:addDias(t,-13),freq:'Semanal',valor:280,qtd:0,caucao:400,kmIni:6100,status:'Ativo',obs:''}];
+  S=d;gerarParcelas();
+  // histórico de pagamentos do exemplo: quase tudo pago, com um atraso e um pagamento no dia
+  S.parcelas.forEach(p=>{const atraso=difDias(p.venc,t);
+    const deixa=(p.contratoId==='k2'&&atraso>=0&&atraso<8)||(p.contratoId==='k4'&&atraso>=0&&atraso<2)||atraso<0;
+    if(!deixa){p.pago=true;p.dataPg=addDias(p.venc,p.contratoId==='k3'&&p.n===3?2:0);p.valorPago=p.valor;p.forma=p.n%3?'Pix':'Dinheiro'}});
+  d.manut=[
+    {id:'u1',motoId:'m1',data:addDias(t,-40),tipo:'Troca de óleo',desc:'Óleo 10W30 e filtro',km:16900,custo:65,oficina:'Oficina do Zé',proxKm:17900,proxData:''},
+    {id:'u2',motoId:'m3',data:addDias(t,-20),tipo:'Relação (corrente, coroa, pinhão)',desc:'Kit relação completo',km:14700,custo:180,oficina:'Moto Peças Norte',proxKm:0,proxData:''},
+    {id:'u3',motoId:'m5',data:addDias(t,-2),tipo:'Revisão',desc:'Revisão do motor, válvulas',km:33980,custo:420,oficina:'Oficina do Zé',proxKm:0,proxData:addDias(t,2)},
+    {id:'u4',motoId:'m2',data:addDias(t,-75),tipo:'Pneu',desc:'Pneu traseiro',km:24800,custo:210,oficina:'Moto Peças Norte',proxKm:0,proxData:''}];
+  d.lanc=[
+    {id:'l1',data:addDias(t,-15),tipo:'despesa',cat:'Rastreador',desc:'Mensalidade dos rastreadores (6 motos)',valor:240,motoId:'',forma:'Pix'},
+    {id:'l2',data:addDias(t,-8),tipo:'despesa',cat:'Seguro',desc:'Seguro contra roubo — parcela',valor:390,motoId:'',forma:'Pix'},
+    {id:'l3',data:addDias(t,-13),tipo:'receita',cat:'Caução recebida',desc:'Caução — Diego Ferreira',valor:400,motoId:'m4',forma:'Pix'}];
+  return d}
+
+function load(){try{const j=localStorage.getItem(KEY);if(j){const d=JSON.parse(j);if(d&&d.motos){COLS.forEach(c=>d[c]=d[c]||[]);return d}}}catch(e){}return seed()}
+function save(){if(ONLINE){enviar();return}try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+let S=vazio();
+if(!ONLINE)S=load();
+
+/* ---------- regras ---------- */
+const moto=id=>S.motos.find(m=>m.id===id);
+const cliente=id=>S.clientes.find(c=>c.id===id);
+const contrato=id=>S.contratos.find(c=>c.id===id);
+const contratoDaMoto=mid=>S.contratos.find(k=>k.motoId===mid&&k.status==='Ativo');
+const statusMoto=m=>contratoDaMoto(m.id)?'Alugada':(m.status||'Disponível');
+const motoNome=m=>m?`${m.marca} ${m.modelo}`.trim():'—';
+function vencN(k,n){const b=k.primeiroVenc||k.inicio;if(k.freq==='Mensal')return addMeses(b,n-1);return addDias(b,(FREQ[k.freq]||7)*(n-1))}
+// Cria as parcelas dos aluguéis ativos até 35 dias à frente. O código de cada parcela é fixo
+// (aluguel + número), então duas pessoas usando ao mesmo tempo não criam parcelas repetidas.
+function gerarParcelas(){const lim=addDias(hoje(),35);let mud=false;
+  for(const k of S.contratos){if(k.status!=='Ativo')continue;
+    for(let n=1;n<5000;n++){if(k.qtd&&n>k.qtd)break;const v=vencN(k,n);if(v>lim)break;
+      const id='p-'+k.id+'-'+n;if(S.parcelas.some(p=>p.id===id))continue;
+      S.parcelas.push({id,contratoId:k.id,n,venc:v,valor:k.valor,pago:false,dataPg:'',valorPago:0,forma:'',avisos:[]});mud=true}}
+  return mud}
+function encargos(p){const at=difDias(p.venc,hoje());if(p.pago||at<=0)return 0;const c=cfg();return Math.round((p.valor*(num(c.multa)/100)+p.valor*(num(c.juros)/100)*at)*100)/100}
+const devido=p=>p.valor+encargos(p);
+function situacao(p){if(p.pago)return'paga';const d=difDias(hoje(),p.venc);if(d<0)return'vencida';if(d===0)return'hoje';if(d<=num(cfg().diasAviso))return'avencer';return'futura'}
+const SIT={paga:['Paga','p-ok'],vencida:['Vencida','p-bad'],hoje:['Vence hoje','p-warn'],avencer:['A vencer','p-warn'],futura:['Em aberto','p-mut']};
+const pillSit=p=>{const s=situacao(p),[t,c]=SIT[s];let x=t;if(s==='vencida'){const d=difDias(p.venc,hoje());x+=` · ${d} dia${d>1?'s':''}`}else if(s==='avencer'){const d=difDias(hoje(),p.venc);x=d===1?'Vence amanhã':`Vence em ${d} dias`}return`<span class="pill ${c}">${x}</span>`};
+const parcelasAbertas=()=>S.parcelas.filter(p=>!p.pago&&contrato(p.contratoId));
+const avisadoHoje=p=>(p.avisos||[]).some(a=>a.data===hoje());
+const totalParc=k=>k.qtd?`${k.qtd}x`:'sem prazo';
+function cnhSit(c){if(!c.cnhVal)return null;const d=difDias(hoje(),c.cnhVal);if(d<0)return['CNH vencida','p-bad'];if(d<=30)return['CNH vence em '+d+' dia'+(d===1?'':'s'),'p-warn'];return null}
+function manutAlertas(){const out=[];const t=hoje();
+  for(const m of S.motos){if(statusMoto(m)==='Inativa'||statusMoto(m)==='Vendida')continue;
+    const us=S.manut.filter(u=>u.motoId===m.id);
+    // só a manutenção mais recente de cada tipo vale como "próxima"
+    const porTipo={};us.forEach(u=>{if(!porTipo[u.tipo]||u.data>porTipo[u.tipo].data)porTipo[u.tipo]=u});
+    for(const u of Object.values(porTipo)){
+      if(u.proxData){const d=difDias(t,u.proxData);if(d<=7)out.push({m,u,txt:d<0?`${u.tipo} atrasada (era ${fdate(u.proxData)})`:d===0?`${u.tipo} hoje`:`${u.tipo} em ${d} dia${d>1?'s':''} (${fdc(u.proxData)})`,grave:d<0})}
+      if(num(u.proxKm)){const f=num(u.proxKm)-num(m.km);if(f<=300)out.push({m,u,txt:f<=0?`${u.tipo}: passou ${Math.abs(f).toLocaleString('pt-BR')} km do previsto`:`${u.tipo} em ${f.toLocaleString('pt-BR')} km`,grave:f<=0})}}}
+  return out.sort((a,b)=>b.grave-a.grave)}
+
+/* ---------- WhatsApp ---------- */
+function msgParcela(p){const k=contrato(p.contratoId),c=cliente(k.clienteId),m=moto(k.motoId),g=cfg();
+  const s=situacao(p),d=difDias(hoje(),p.venc),at=-d;
+  const quando=d===0?'hoje':d===1?'amanhã':`em ${d} dias`;
+  const tx=(s==='vencida'?g.msgVencida:g.msgAvencer)||'';
+  const tot=k.qtd?`${p.n}/${k.qtd}`:`nº ${p.n}`;
+  const rep={nome:(c?c.nome:'').split(' ')[0],nome_completo:c?c.nome:'',empresa:g.empresa,parcela:tot,moto:motoNome(m),placa:m?m.placa:'',valor:brl(devido(p)),
+    vencimento:fdate(p.venc),quando,dias:`${at} dia${at===1?'':'s'}`,pix:g.pix?` Chave Pix: ${g.pix}.`:''};
+  return tx.replace(/\{(\w+)\}/g,(x,n)=>n in rep?rep[n]:x)}
+function whatsParcela(pid){const p=S.parcelas.find(x=>x.id===pid),k=contrato(p.contratoId),c=cliente(k.clienteId);
+  const nro=foneWa(c&&c.fone);
+  const ult=(p.avisos||[]).slice(-1)[0];
+  abrirModal(`WhatsApp para ${h(c?c.nome:'')}`,
+    `${nro?'':`<div class="merr">Este cliente não tem um celular válido cadastrado. Corrija em Clientes → Editar.</div>`}
+    <div class="form"><label class="w">Mensagem (pode editar antes de enviar)<textarea id="wa_txt" rows="7">${h(msgParcela(p))}</textarea></label>
+    <p class="dica">Vai para ${h(fone(c&&c.fone))||'—'}.${ult?` Último aviso desta parcela: ${fdate(ult.data)}.`:''}</p></div>`,
+    null,'',false,false,
+    `<a class="btn wa" id="wa_go" href="#" target="_blank" rel="noopener" ${nro?'':'aria-disabled="true" style="opacity:.5;pointer-events:none"'}>${WA_IC}Abrir no WhatsApp</a>`);
+  $('#wa_go').onclick=()=>{$('#wa_go').href=`https://wa.me/${nro}?text=${encodeURIComponent($('#wa_txt').value)}`;
+    p.avisos=[...(p.avisos||[]),{data:hoje(),tipo:situacao(p)}];save();setTimeout(()=>{fecharModal();render();toast('Aviso registrado')},300)}}
+function whatsCliente(cid){const c=cliente(cid),nro=foneWa(c.fone);if(!nro){toast('Celular inválido no cadastro');return}
+  window.open(`https://wa.me/${nro}?text=${encodeURIComponent(`Olá, ${c.nome.split(' ')[0]}! Aqui é da ${cfg().empresa}.`)}`,'_blank','noopener')}
+
+/* ---------- modal, formulários e avisos ---------- */
+let acaoModal=null;
+function abrirModal(tit,corpo,ok,okTxt='Salvar',larga=false,perigo=false,extra=''){
+  const m=$('#modal');acaoModal=ok;
+  m.innerHTML=`<div class="mbox${larga?' larga':''}"><div class="mhd"><h3 id="mtit">${tit}</h3><button type="button" aria-label="Fechar" onclick="fecharModal()">×</button></div>
+  <form id="mform" novalidate><div class="mbd"><div class="merr" id="merr" hidden></div>${corpo}</div>
+  <div class="mft"><button type="button" class="btn sec" onclick="fecharModal()">${ok?'Cancelar':'Fechar'}</button>${extra}${ok?`<button class="btn${perigo?' bad':''}" type="submit">${okTxt}</button>`:''}</div></form></div>`;
+  m.hidden=false;
+  $('#mform').onsubmit=e=>{e.preventDefault();if(acaoModal&&acaoModal()!==false)fecharModal()};
+  const f=m.querySelector('input:not([type=hidden]),select,textarea');if(f&&ok)setTimeout(()=>f.focus(),30)}
+function fecharModal(){const m=$('#modal');m.hidden=true;m.innerHTML='';acaoModal=null;if(atrasoRender){atrasoRender=false;render()}}
+function erroModal(t){const e=$('#merr');if(e){e.textContent=t;e.hidden=false;e.scrollIntoView({block:'nearest'})}}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#modal').hidden)fecharModal()});
+$('#modal').addEventListener('mousedown',e=>{if(e.target.id==='modal')fecharModal()});
+function campos(fs){return`<div class="form">${fs.map(f=>{
+  if(f.t==='h4')return`<h4>${h(f.l)}</h4>`;if(f.t==='dica')return`<p class="dica">${f.l}</p>`;
+  const id='f_'+f.k,req=f.req?' required':'',v=f.v??'';let inp;
+  if(f.t==='select')inp=`<select id="${id}"${req}>${f.o.map(o=>{const[val,tx]=Array.isArray(o)?o:[o,o];return`<option value="${h(val)}"${String(val)===String(v)?' selected':''}>${h(tx)}</option>`}).join('')}</select>`;
+  else if(f.t==='area')inp=`<textarea id="${id}"${req}>${h(v)}</textarea>`;
+  else inp=`<input id="${id}" type="${f.t==='money'?'text':f.t||'text'}"${f.t==='money'?' inputmode="decimal"':''}${f.t==='number'?' inputmode="numeric"':''} value="${h(f.t==='money'&&v!==''?String(v).replace('.',','):v)}"${f.ph?` placeholder="${h(f.ph)}"`:''}${req}${f.max?` maxlength="${f.max}"`:''}>`;
+  return`<label class="${f.w?'w':''}">${h(f.l)}${f.req?' *':''}${inp}</label>`}).join('')}</div>`}
+function ler(fs){const d={};for(const f of fs){if(!f.k)continue;const el=$('#f_'+f.k);let v=el.value.trim();
+  if(f.req&&!v){erroModal(`Preencha: ${f.l}`);el.focus();return null}
+  if(f.t==='money'||f.t==='number')v=num(v);d[f.k]=v}return d}
+let toastT;function toast(t){let n=$('.toast');if(!n){n=document.createElement('div');n.className='toast';n.setAttribute('role','status');document.body.appendChild(n)}
+  n.textContent=t;n.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>n.hidden=true,2800)}
+function commit(msg){save();render();if(msg)toast(msg)}
+function confirmar(tit,txt,ok,okTxt){abrirModal(tit,`<p style="margin:0">${txt}</p>`,()=>{ok()},okTxt,false,true)}
+
+/* ---------- navegação ---------- */
+let U=ONLINE?null:{id:0,nome:'Demonstração',perfil:'admin'};
+const admin=()=>U&&U.perfil==='admin';
+let view=(location.hash||'#painel').slice(1);
+const VIEWS=[['painel','Painel'],['cobrancas','Cobranças'],['contratos','Aluguéis'],['motos','Motos'],['clientes','Clientes'],['manut','Manutenção'],['financeiro','Financeiro',1],['config','Configurações',1],['acessos','Acessos',1,1]];
+function ir(v){view=v;history.replaceState(null,'','#'+v);F.busca='';render();window.scrollTo(0,0)}
+window.addEventListener('hashchange',()=>{const v=location.hash.slice(1);if(v&&v!==view){view=v;render()}});
+const F={busca:'',cob:'pendentes',mot:'todas',ctr:'Ativo',mes:hoje().slice(0,7)};
+function head(t,sub,acoes=''){return`<div class="head"><div><h1>${t}</h1>${sub?`<p>${sub}</p>`:''}</div><div class="acoes">${acoes}</div></div>`}
+
+function render(){
+  const app=$('#app');
+  if(ONLINE&&!U){app.innerHTML=telaLogin();setTimeout(()=>{const i=$('#lg_u');if(i)i.focus()});return}
+  if(ONLINE&&!carregado){app.innerHTML=`<div class="login"><p style="color:#fff">Carregando…</p></div>`;return}
+  const vs=VIEWS.filter(v=>(!v[2]||admin())&&(!v[3]||ONLINE));
+  if(!vs.some(v=>v[0]===view))view='painel';
+  const atrasadas=parcelasAbertas().filter(p=>situacao(p)==='vencida').length;
+  const corpo={painel:vPainel,cobrancas:vCobrancas,contratos:vContratos,motos:vMotos,clientes:vClientes,manut:vManut,financeiro:vFinanceiro,config:vConfig,acessos:vAcessos}[view]();
+  app.innerHTML=`<div class="app"><aside class="side"><div class="marca">${LOGO}<div><b>${h(cfg().empresa)}</b><small>Aluguel de motos</small></div></div>
+    <nav class="nav" aria-label="Seções">${vs.map(([k,t])=>`<button class="${k===view?'on':''}" onclick="ir('${k}')"${k===view?' aria-current="page"':''}>${t}${k==='cobrancas'&&atrasadas?`<span class="ct" title="Parcelas vencidas">${atrasadas}</span>`:''}</button>`).join('')}</nav>
+    <div class="rod"><b>${h(U.nome)}</b>${ONLINE?`${admin()?'Administrador':'Equipe'}<br><button onclick="minhaSenha()">Minha senha</button><button onclick="sairOnline()">Sair</button>`:'Modo demonstração'}</div></aside>
+    <main>${ONLINE?'':`<div class="demo">Demonstração: dados fictícios, salvos só neste navegador. <button onclick="restaurarDemo()">Restaurar exemplo</button><button onclick="limparDemo()">Começar vazio</button></div>`}
+    ${ONLINE?`<div class="conta mut" style="font-size:13px;margin-bottom:10px">${h(U.nome)} · <button class="lnk" onclick="minhaSenha()">Minha senha</button> · <button class="lnk" onclick="sairOnline()">Sair</button></div>`:''}
+    ${corpo}</main></div>`}
+function restaurarDemo(){confirmar('Restaurar exemplo','Os dados desta demonstração serão trocados pelos dados de exemplo.',()=>{S=seed();commit('Exemplo restaurado')},'Restaurar')}
+function limparDemo(){confirmar('Começar vazio','Todos os dados desta demonstração serão apagados para você testar do zero.',()=>{S=vazio();commit('Tudo limpo')},'Apagar tudo')}
+
+/* ---------- painel ---------- */
+function linhaCobranca(p){const k=contrato(p.contratoId),c=cliente(k.clienteId),m=moto(k.motoId);
+  return`<div class="item"><div class="tx"><b>${h(c?c.nome:'—')}</b><small>${h(motoNome(m))} · ${h(m?m.placa:'')} · parcela ${k.qtd?p.n+'/'+k.qtd:p.n} · vence ${fdate(p.venc)}</small>
+    <div style="margin-top:4px">${pillSit(p)}${avisadoHoje(p)?' <span class="pill p-info">Avisado hoje</span>':''}</div></div>
+    <div class="vl">${brl(devido(p))}</div>
+    <div class="bt"><button class="btn wa pq" onclick="whatsParcela('${p.id}')">${WA_IC}Avisar</button><button class="btn sec pq" onclick="receber('${p.id}')">Receber</button></div></div>`}
+function vPainel(){const t=hoje(),mes=t.slice(0,7);
+  const ab=parcelasAbertas(),venc=ab.filter(p=>situacao(p)==='vencida'),prox=ab.filter(p=>['hoje','avencer'].includes(situacao(p)));
+  const sem=ab.filter(p=>p.venc>=t&&p.venc<=addDias(t,7));
+  const recMes=S.parcelas.filter(p=>p.pago&&(p.dataPg||'').startsWith(mes)).reduce((s,p)=>s+num(p.valorPago||p.valor),0);
+  const ativas=S.motos.filter(m=>!['Inativa','Vendida'].includes(statusMoto(m)));
+  const alug=ativas.filter(m=>statusMoto(m)==='Alugada').length,disp=ativas.filter(m=>statusMoto(m)==='Disponível').length,man=ativas.filter(m=>statusMoto(m)==='Manutenção').length;
+  const cob=[...venc.sort((a,b)=>a.venc.localeCompare(b.venc)),...prox.sort((a,b)=>a.venc.localeCompare(b.venc))];
+  const ma=manutAlertas();
+  const cnhs=S.contratos.filter(k=>k.status==='Ativo').map(k=>cliente(k.clienteId)).filter(c=>c&&cnhSit(c));
+  return head('Painel',`${new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'})}`,`<button class="btn" onclick="formContrato()">+ Novo aluguel</button>`)+
+  `<div class="kpis">
+    <div class="kpi"><span>Motos alugadas</span><b>${alug} de ${ativas.length}</b><small>${disp} disponíve${disp===1?'l':'is'} · ${man} em manutenção</small></div>
+    <div class="kpi ${venc.length?'bad':''}"><span>Em atraso</span><b>${brl(venc.reduce((s,p)=>s+devido(p),0))}</b><small>${venc.length} parcela${venc.length===1?'':'s'} vencida${venc.length===1?'':'s'}</small></div>
+    <div class="kpi"><span>A receber em 7 dias</span><b>${brl(sem.reduce((s,p)=>s+p.valor,0))}</b><small>${sem.length} parcela${sem.length===1?'':'s'}</small></div>
+    <div class="kpi ok"><span>Recebido em ${MESES[Number(mes.slice(5))-1]}</span><b>${brl(recMes)}</b><small>parcelas pagas no mês</small></div>
+  </div>
+  <section class="card"><h2>Cobrar agora <small>vencidas e que vencem nos próximos ${num(cfg().diasAviso)} dia${num(cfg().diasAviso)===1?'':'s'}</small></h2>
+    ${cob.length?`<div class="lista">${cob.map(linhaCobranca).join('')}</div>`:'<p class="vazio">Nenhuma cobrança pendente. Tudo em dia!</p>'}</section>
+  <div class="grid2">
+    <section class="card"><h2>Manutenção próxima</h2>${ma.length?`<div class="lista">${ma.map(a=>`<div class="item"><div class="tx"><b>${h(a.m.placa)} · ${h(motoNome(a.m))}</b><small>${h(a.txt)}</small></div><span class="pill ${a.grave?'p-bad':'p-warn'}">${a.grave?'Atrasada':'Em breve'}</span></div>`).join('')}</div>`:'<p class="vazio">Nada previsto para os próximos dias.</p>'}</section>
+    <section class="card"><h2>CNH dos motoristas</h2>${cnhs.length?`<div class="lista">${cnhs.map(c=>{const[t2,cl]=cnhSit(c);return`<div class="item"><div class="tx"><b>${h(c.nome)}</b><small>Validade ${fdate(c.cnhVal)}</small></div><span class="pill ${cl}">${t2}</span></div>`}).join('')}</div>`:'<p class="vazio">Todas as CNHs dos motoristas com aluguel ativo estão em dia.</p>'}</section>
+  </div>`}
+
+/* ---------- cobranças / parcelas ---------- */
+function vCobrancas(){
+  const f=F.cob,b=F.busca.toLowerCase();
+  let ps=S.parcelas.filter(p=>contrato(p.contratoId));
+  const sit=p=>situacao(p);
+  if(f==='pendentes')ps=ps.filter(p=>['vencida','hoje','avencer'].includes(sit(p)));
+  else if(f==='vencidas')ps=ps.filter(p=>sit(p)==='vencida');
+  else if(f==='abertas')ps=ps.filter(p=>!p.pago);
+  else if(f==='pagas')ps=ps.filter(p=>p.pago&&(p.dataPg||'').startsWith(F.mes));
+  if(b)ps=ps.filter(p=>{const k=contrato(p.contratoId),c=cliente(k.clienteId),m=moto(k.motoId);return((c?c.nome:'')+' '+(m?m.placa+' '+m.modelo:'')).toLowerCase().includes(b)});
+  ps.sort((a,b2)=>f==='pagas'?(b2.dataPg||'').localeCompare(a.dataPg||''):a.venc.localeCompare(b2.venc));
+  const tot=ps.reduce((s,p)=>s+(p.pago?num(p.valorPago||p.valor):devido(p)),0);
+  const chips=[['pendentes','Para cobrar'],['vencidas','Vencidas'],['abertas','Todas em aberto'],['pagas','Pagas no mês']];
+  return head('Cobranças','Parcelas dos aluguéis. Avise pelo WhatsApp e registre o pagamento.')+
+  `<section class="card"><div class="filtros"><div class="chips">${chips.map(([k,t])=>`<button class="chip${f===k?' on':''}" onclick="F.cob='${k}';render()">${t}</button>`).join('')}</div>
+    ${f==='pagas'?`<input type="month" value="${F.mes}" onchange="F.mes=this.value||hoje().slice(0,7);render()" style="flex:0 0 auto" aria-label="Mês">`:''}
+    <input type="search" placeholder="Buscar cliente ou placa" value="${h(F.busca)}" oninput="F.busca=this.value;atualizaLista()" aria-label="Buscar"></div>
+    <div id="lst"><p class="mut" style="margin:0 0 8px;font-size:13.5px">${ps.length} parcela${ps.length===1?'':'s'} · total ${brl(tot)}</p>
+    ${ps.length?`<div class="tbl-wrap"><table style="min-width:720px"><thead><tr><th>Cliente</th><th>Moto</th><th>Parcela</th><th>Vencimento</th><th class="num">Valor</th><th>Situação</th><th></th></tr></thead><tbody>
+    ${ps.map(p=>{const k=contrato(p.contratoId),c=cliente(k.clienteId),m=moto(k.motoId),enc=encargos(p);
+      return`<tr><td><b>${h(c?c.nome:'—')}</b><small>${h(fone(c&&c.fone))}</small></td><td class="nw">${h(m?m.placa:'—')}<small>${h(motoNome(m))}</small></td>
+      <td class="nw">${k.qtd?p.n+'/'+k.qtd:'nº '+p.n}<small>${h(k.freq)}</small></td><td class="nw">${fdate(p.venc)}${p.pago?`<small>pago ${fdate(p.dataPg)}${p.forma?' · '+h(p.forma):''}</small>`:''}</td>
+      <td class="num">${brl(p.pago?num(p.valorPago||p.valor):devido(p))}${enc?`<small>+ ${brl(enc)} encargos</small>`:''}</td>
+      <td>${pillSit(p)}${avisadoHoje(p)?'<small>avisado hoje</small>':''}</td>
+      <td class="acts">${p.pago?`<button class="lnk" onclick="recibo('${p.id}')">Recibo</button><button class="lnk bad" onclick="desfazerPg('${p.id}')">Desfazer</button>`:`<button class="lnk" style="color:var(--wa)" onclick="whatsParcela('${p.id}')">WhatsApp</button><button class="lnk" onclick="receber('${p.id}')">Receber</button>`}</td></tr>`}).join('')}
+    </tbody></table></div>`:'<p class="vazio">Nenhuma parcela aqui.</p>'}</div></section>`}
+function atualizaLista(){const v=view,html=({cobrancas:vCobrancas,motos:vMotos,clientes:vClientes,contratos:vContratos,manut:vManut}[v]||(()=>''))();
+  const tmp=document.createElement('div');tmp.innerHTML=html;const n=tmp.querySelector('#lst'),a=$('#lst');if(n&&a)a.innerHTML=n.innerHTML}
+function receber(pid){const p=S.parcelas.find(x=>x.id===pid),k=contrato(p.contratoId),c=cliente(k.clienteId),g=cfg(),enc=encargos(p);
+  const fs=[{t:'dica',l:`<b>${h(c?c.nome:'')}</b> · parcela ${k.qtd?p.n+'/'+k.qtd:p.n} · vencimento ${fdate(p.venc)} · valor ${brl(p.valor)}${enc?` + ${brl(enc)} de multa/juros`:''}`},
+    {k:'valorPago',l:'Valor recebido',t:'money',req:1,v:devido(p).toFixed(2)},{k:'dataPg',l:'Data do pagamento',t:'date',req:1,v:hoje()},
+    {k:'forma',l:'Forma de pagamento',t:'select',o:g.formas,v:g.formas[0]},{k:'obsPg',l:'Observação',v:''}];
+  abrirModal('Receber parcela',campos(fs),()=>{const d=ler(fs);if(!d)return false;if(d.valorPago<=0){erroModal('Informe o valor recebido.');return false}
+    Object.assign(p,d,{pago:true});commit('Pagamento registrado')},'Confirmar recebimento')}
+function desfazerPg(pid){const p=S.parcelas.find(x=>x.id===pid);
+  confirmar('Desfazer pagamento',`A parcela de ${fdate(p.venc)} volta a ficar em aberto e o valor sai do recebido.`,()=>{Object.assign(p,{pago:false,dataPg:'',valorPago:0,forma:'',obsPg:''});commit('Pagamento desfeito')},'Desfazer')}
+function recibo(pid){const p=S.parcelas.find(x=>x.id===pid),k=contrato(p.contratoId),c=cliente(k.clienteId),m=moto(k.motoId),g=cfg();
+  const tx=`Recibo — ${g.empresa}\n\nRecebemos de ${c?c.nome:''}${c&&c.cpf?` (CPF ${c.cpf})`:''} o valor de ${brl(p.valorPago||p.valor)}, referente à parcela ${k.qtd?p.n+'/'+k.qtd:p.n} do aluguel da moto ${motoNome(m)} placa ${m?m.placa:''}, com vencimento em ${fdate(p.venc)}.\nPago em ${fdate(p.dataPg)}${p.forma?' via '+p.forma:''}.`;
+  const nro=foneWa(c&&c.fone);
+  abrirModal('Recibo',`<div class="form"><label class="w">Texto do recibo<textarea id="rc_txt" rows="8">${h(tx)}</textarea></label></div>`,null,'',false,false,
+    `<button type="button" class="btn sec" onclick="navigator.clipboard&&navigator.clipboard.writeText($('#rc_txt').value).then(()=>toast('Recibo copiado'))">Copiar</button>${nro?`<a class="btn wa" href="#" target="_blank" rel="noopener" onclick="this.href='https://wa.me/${nro}?text='+encodeURIComponent($('#rc_txt').value)">${WA_IC}Enviar</a>`:''}`)}
+
+/* ---------- aluguéis (contratos) ---------- */
+function vContratos(){const b=F.busca.toLowerCase();
+  let ks=S.contratos.filter(k=>F.ctr==='todos'||k.status===F.ctr);
+  if(b)ks=ks.filter(k=>{const c=cliente(k.clienteId),m=moto(k.motoId);return((c?c.nome:'')+' '+(m?m.placa+' '+m.modelo:'')).toLowerCase().includes(b)});
+  ks.sort((a,b2)=>(b2.inicio||'').localeCompare(a.inicio||''));
+  return head('Aluguéis','Cada aluguel liga um cliente a uma moto e gera as parcelas sozinho.',`<button class="btn" onclick="formContrato()">+ Novo aluguel</button>`)+
+  `<section class="card"><div class="filtros"><div class="chips">${[['Ativo','Ativos'],['Encerrado','Encerrados'],['todos','Todos']].map(([k,t])=>`<button class="chip${F.ctr===k?' on':''}" onclick="F.ctr='${k}';render()">${t}</button>`).join('')}</div>
+  <input type="search" placeholder="Buscar cliente ou placa" value="${h(F.busca)}" oninput="F.busca=this.value;atualizaLista()" aria-label="Buscar"></div>
+  <div id="lst">${ks.length?`<div class="tbl-wrap"><table style="min-width:760px"><thead><tr><th>Cliente</th><th>Moto</th><th>Início</th><th class="num">Parcela</th><th>Pagas</th><th>Situação</th><th></th></tr></thead><tbody>
+  ${ks.map(k=>{const c=cliente(k.clienteId),m=moto(k.motoId),ps=S.parcelas.filter(p=>p.contratoId===k.id),pg=ps.filter(p=>p.pago).length,vc=ps.filter(p=>situacao(p)==='vencida').length;
+    return`<tr><td><b>${h(c?c.nome:'—')}</b><small>${h(fone(c&&c.fone))}</small></td><td class="nw">${h(m?m.placa:'—')}<small>${h(motoNome(m))}</small></td>
+    <td class="nw">${fdate(k.inicio)}${k.fim?`<small>fim ${fdate(k.fim)}</small>`:''}</td><td class="num">${brl(k.valor)}<small>${h(k.freq)} · ${totalParc(k)}</small></td>
+    <td class="nw">${pg}${k.qtd?' de '+k.qtd:''}</td>
+    <td>${k.status==='Ativo'?(vc?`<span class="pill p-bad">${vc} em atraso</span>`:'<span class="pill p-ok">Em dia</span>'):'<span class="pill p-mut">Encerrado</span>'}</td>
+    <td class="acts"><button class="lnk" onclick="verContrato('${k.id}')">Ver</button>${k.status==='Ativo'?`<button class="lnk" onclick="formContrato('${k.id}')">Editar</button>`:''}</td></tr>`}).join('')}
+  </tbody></table></div>`:'<p class="vazio">Nenhum aluguel aqui.</p>'}</div></section>`}
+function formContrato(id){
+  const k=id?contrato(id):{clienteId:'',motoId:'',inicio:hoje(),primeiroVenc:hoje(),freq:'Semanal',valor:'',qtd:0,caucao:'',kmIni:'',obs:''};
+  const clis=S.clientes.filter(c=>c.ativo!==false||c.id===k.clienteId).sort((a,b)=>a.nome.localeCompare(b.nome));
+  const motos=S.motos.filter(m=>m.id===k.motoId||statusMoto(m)==='Disponível');
+  if(!id&&!clis.length){toast('Cadastre um cliente primeiro');ir('clientes');return}
+  if(!id&&!motos.length){toast('Nenhuma moto disponível no momento');return}
+  const temPg=id&&S.parcelas.some(p=>p.contratoId===id&&p.pago);
+  const fs=[{k:'clienteId',l:'Cliente',t:'select',req:1,o:[['','Escolha…'],...clis.map(c=>[c.id,c.nome])],v:k.clienteId},
+    {k:'motoId',l:'Moto',t:'select',req:1,o:[['','Escolha…'],...motos.map(m=>[m.id,`${m.placa} · ${motoNome(m)}`])],v:k.motoId},
+    {k:'inicio',l:'Data de retirada',t:'date',req:1,v:k.inicio},{k:'kmIni',l:'KM na retirada',t:'number',v:k.kmIni},
+    {t:'h4',l:'Parcelas'},
+    {k:'valor',l:'Valor da parcela (R$)',t:'money',req:1,v:k.valor},{k:'freq',l:'Frequência',t:'select',o:Object.keys(FREQ),v:k.freq},
+    {k:'primeiroVenc',l:'1º vencimento',t:'date',req:1,v:k.primeiroVenc||k.inicio},{k:'qtd',l:'Quantidade de parcelas (0 = sem prazo)',t:'number',v:k.qtd||0},
+    ...(temPg?[{t:'dica',l:'Mudar o valor atualiza só as parcelas em aberto que ainda não venceram.'}]:[]),
+    {k:'caucao',l:'Caução (R$)',t:'money',v:k.caucao},{k:'obs',l:'Observações',v:k.obs,w:1}];
+  abrirModal(id?'Editar aluguel':'Novo aluguel',campos(fs),()=>{const d=ler(fs);if(!d)return false;
+    if(d.valor<=0){erroModal('Informe o valor da parcela.');return false}
+    if(d.primeiroVenc<d.inicio){erroModal('O 1º vencimento não pode ser antes da retirada.');return false}
+    const outro=S.contratos.find(x=>x.id!==id&&x.status==='Ativo'&&x.motoId===d.motoId);if(outro){erroModal('Essa moto já está em outro aluguel ativo.');return false}
+    d.qtd=Math.max(0,Math.round(d.qtd));
+    if(id){const muda=k.freq!==d.freq||k.primeiroVenc!==d.primeiroVenc;
+      if(muda&&temPg){erroModal('Este aluguel já tem parcelas pagas. Para mudar a frequência ou o 1º vencimento, encerre este aluguel e crie um novo.');return false}
+      Object.assign(k,d);
+      // sem nada pago, o calendário pode mudar à vontade: as parcelas em aberto são refeitas
+      if(muda)S.parcelas=S.parcelas.filter(p=>!(p.contratoId===id&&!p.pago));
+      // parcelas além da nova quantidade saem; as em aberto que ainda não venceram seguem o novo valor
+      S.parcelas=S.parcelas.filter(p=>!(p.contratoId===id&&!p.pago&&d.qtd&&p.n>d.qtd));
+      S.parcelas.forEach(p=>{if(p.contratoId===id&&!p.pago&&p.venc>=hoje())p.valor=d.valor});
+      const m=moto(d.motoId);if(m&&num(d.kmIni)>num(m.km))m.km=num(d.kmIni);
+      gerarParcelas();commit('Aluguel atualizado')}
+    else{const nk={id:uid('k'),...d,status:'Ativo',fim:''};S.contratos.push(nk);const m=moto(d.motoId);if(m){if(num(d.kmIni)>num(m.km))m.km=num(d.kmIni);m.status='Disponível'}
+      gerarParcelas();commit('Aluguel criado — parcelas geradas')}},id?'Salvar':'Criar aluguel')}
+function verContrato(id){const k=contrato(id),c=cliente(k.clienteId),m=moto(k.motoId);
+  const ps=S.parcelas.filter(p=>p.contratoId===id).sort((a,b)=>a.n-b.n);
+  const pago=ps.filter(p=>p.pago).reduce((s,p)=>s+num(p.valorPago||p.valor),0),aberto=ps.filter(p=>!p.pago&&situacao(p)==='vencida').reduce((s,p)=>s+devido(p),0);
+  abrirModal(`Aluguel · ${h(c?c.nome:'')}`,`<div class="resumo">
+    <div><span>Moto</span><b>${h(m?m.placa:'—')}</b><br><small class="mut">${h(motoNome(m))}</small></div>
+    <div><span>Parcela</span><b>${brl(k.valor)}</b><br><small class="mut">${h(k.freq)} · ${totalParc(k)}</small></div>
+    <div><span>Total pago</span><b>${brl(pago)}</b></div><div><span>Em atraso</span><b style="color:${aberto?'var(--bad)':'inherit'}">${brl(aberto)}</b></div>
+    <div><span>Retirada</span><b>${fdate(k.inicio)}</b>${k.kmIni?`<br><small class="mut">${num(k.kmIni).toLocaleString('pt-BR')} km</small>`:''}</div>
+    <div><span>Caução</span><b>${brl(k.caucao)}</b></div>${k.fim?`<div><span>Encerrado em</span><b>${fdate(k.fim)}</b>${k.kmFim?`<br><small class="mut">${num(k.kmFim).toLocaleString('pt-BR')} km</small>`:''}</div>`:''}</div>
+    ${k.obs?`<p class="mut" style="margin:0 0 12px">${h(k.obs)}</p>`:''}
+    ${ps.length?`<div class="tbl-wrap"><table style="min-width:520px"><thead><tr><th>Nº</th><th>Vencimento</th><th class="num">Valor</th><th>Situação</th><th></th></tr></thead><tbody>
+    ${ps.map(p=>`<tr><td>${p.n}</td><td class="nw">${fdate(p.venc)}${p.pago?`<small>pago ${fdate(p.dataPg)}</small>`:''}</td><td class="num">${brl(p.pago?num(p.valorPago||p.valor):devido(p))}</td><td>${pillSit(p)}</td>
+    <td class="acts">${p.pago?`<button type="button" class="lnk" onclick="recibo('${p.id}')">Recibo</button>`:`<button type="button" class="lnk" style="color:var(--wa)" onclick="whatsParcela('${p.id}')">WhatsApp</button><button type="button" class="lnk" onclick="receber('${p.id}')">Receber</button>`}</td></tr>`).join('')}
+    </tbody></table></div>`:'<p class="vazio">Ainda sem parcelas.</p>'}`,null,'',true,false,
+    k.status==='Ativo'?`<button type="button" class="btn sec" onclick="encerrar('${k.id}')">Encerrar aluguel</button>`:`<button type="button" class="btn sec" onclick="apagarContrato('${k.id}')">Apagar</button>`)}
+function encerrar(id){const k=contrato(id),m=moto(k.motoId);
+  const fs=[{k:'fim',l:'Data da devolução',t:'date',req:1,v:hoje()},{k:'kmFim',l:'KM na devolução',t:'number',v:m?m.km:''},
+    {k:'motoSt',l:'A moto volta como',t:'select',o:['Disponível','Manutenção'],v:'Disponível'},
+    {t:'dica',l:'Parcelas que vencem depois da devolução e não foram pagas são canceladas. As vencidas continuam em cobrança.'}];
+  abrirModal('Encerrar aluguel',campos(fs),()=>{const d=ler(fs);if(!d)return false;
+    Object.assign(k,{status:'Encerrado',fim:d.fim,kmFim:d.kmFim});
+    S.parcelas=S.parcelas.filter(p=>!(p.contratoId===id&&!p.pago&&p.venc>d.fim));
+    if(m){m.status=d.motoSt;if(num(d.kmFim)>num(m.km))m.km=num(d.kmFim)}commit('Aluguel encerrado')},'Encerrar')}
+function apagarContrato(id){confirmar('Apagar aluguel','O aluguel e todas as parcelas dele (inclusive as pagas) serão apagados. Use só para corrigir um lançamento errado.',()=>{
+  S.contratos=S.contratos.filter(k=>k.id!==id);S.parcelas=S.parcelas.filter(p=>p.contratoId!==id);commit('Aluguel apagado')},'Apagar')}
+
+/* ---------- motos ---------- */
+const PILL_MOTO={Alugada:'p-pri',Disponível:'p-ok',Manutenção:'p-warn',Inativa:'p-mut',Vendida:'p-mut'};
+function vMotos(){const b=F.busca.toLowerCase();
+  let ms=S.motos.filter(m=>F.mot==='todas'||statusMoto(m)===F.mot);
+  if(b)ms=ms.filter(m=>(m.placa+' '+m.marca+' '+m.modelo+' '+m.cor).toLowerCase().includes(b));
+  ms.sort((a,b2)=>a.placa.localeCompare(b2.placa));
+  return head('Motos',`${S.motos.length} moto${S.motos.length===1?'':'s'} cadastrada${S.motos.length===1?'':'s'}`,`<button class="btn" onclick="formMoto()">+ Nova moto</button>`)+
+  `<section class="card"><div class="filtros"><div class="chips">${['todas','Alugada','Disponível','Manutenção','Inativa'].map(k=>`<button class="chip${F.mot===k?' on':''}" onclick="F.mot='${k}';render()">${k==='todas'?'Todas':k==='Alugada'?'Alugadas':k==='Inativa'?'Inativas':k==='Disponível'?'Disponíveis':k}</button>`).join('')}</div>
+  <input type="search" placeholder="Buscar placa ou modelo" value="${h(F.busca)}" oninput="F.busca=this.value;atualizaLista()" aria-label="Buscar"></div>
+  <div id="lst">${ms.length?`<div class="tbl-wrap"><table style="min-width:680px"><thead><tr><th>Placa</th><th>Moto</th><th class="num">KM</th><th>Situação</th><th>Com quem</th><th></th></tr></thead><tbody>
+  ${ms.map(m=>{const st=statusMoto(m),k=contratoDaMoto(m.id),c=k&&cliente(k.clienteId);
+    return`<tr><td class="nw"><b>${h(m.placa)}</b></td><td>${h(motoNome(m))}<small>${h([m.ano,m.cor].filter(Boolean).join(' · '))}</small></td><td class="num">${num(m.km).toLocaleString('pt-BR')}</td>
+    <td><span class="pill ${PILL_MOTO[st]||'p-mut'}">${h(st)}</span></td><td>${c?h(c.nome):'<span class="mut">—</span>'}</td>
+    <td class="acts"><button class="lnk" onclick="verMoto('${m.id}')">Histórico</button><button class="lnk" onclick="formMoto('${m.id}')">Editar</button></td></tr>`}).join('')}
+  </tbody></table></div>`:'<p class="vazio">Nenhuma moto aqui.</p>'}</div></section>`}
+function formMoto(id){const m=id?moto(id):{placa:'',marca:'Honda',modelo:'',ano:'',cor:'',km:'',renavam:'',chassi:'',status:'Disponível',obs:'',valorCompra:'',dataCompra:''};
+  const alugada=id&&contratoDaMoto(id);
+  const fs=[{k:'placa',l:'Placa',req:1,v:m.placa,ph:'ABC-1D23',max:8},{k:'marca',l:'Marca',v:m.marca},{k:'modelo',l:'Modelo',req:1,v:m.modelo,ph:'CG 160 Fan'},
+    {k:'ano',l:'Ano',v:m.ano,t:'number'},{k:'cor',l:'Cor',v:m.cor},{k:'km',l:'KM atual',t:'number',v:m.km},
+    {k:'renavam',l:'Renavam',v:m.renavam},{k:'chassi',l:'Chassi',v:m.chassi},
+    ...(alugada?[{t:'dica',l:'Esta moto está alugada. Para mudar a situação, encerre o aluguel.'}]:[{k:'status',l:'Situação',t:'select',o:['Disponível','Manutenção','Inativa','Vendida'],v:m.status==='Alugada'?'Disponível':m.status}]),
+    ...(admin()?[{k:'valorCompra',l:'Valor de compra (R$)',t:'money',v:m.valorCompra||''},{k:'dataCompra',l:'Data da compra',t:'date',v:m.dataCompra||''}]:[]),
+    {k:'obs',l:'Observações',v:m.obs,w:1}];
+  abrirModal(id?'Editar moto':'Nova moto',campos(fs),()=>{const d=ler(fs);if(!d)return false;d.placa=placaFmt(d.placa);d.ano=d.ano?String(d.ano):'';
+    if(S.motos.some(x=>x.id!==id&&x.placa.replace('-','')===d.placa.replace('-','')))return erroModal('Já existe uma moto com essa placa.'),false;
+    if(id)Object.assign(m,d);else S.motos.push({id:uid('m'),...d});commit(id?'Moto atualizada':'Moto cadastrada')},id?'Salvar':'Cadastrar',false,false,
+    id&&!alugada?`<button type="button" class="btn sec" onclick="apagarMoto('${id}')">Apagar</button>`:'')}
+function apagarMoto(id){const m=moto(id);if(S.contratos.some(k=>k.motoId===id)){toast('Esta moto tem aluguéis no histórico. Marque como Inativa ou Vendida.');return}
+  confirmar('Apagar moto',`A moto ${h(m.placa)} e as manutenções dela serão apagadas.`,()=>{S.motos=S.motos.filter(x=>x.id!==id);S.manut=S.manut.filter(u=>u.motoId!==id);commit('Moto apagada')},'Apagar')}
+function verMoto(id){const m=moto(id),ks=S.contratos.filter(k=>k.motoId===id).sort((a,b)=>b.inicio.localeCompare(a.inicio)),us=S.manut.filter(u=>u.motoId===id).sort((a,b)=>b.data.localeCompare(a.data));
+  const rec=S.parcelas.filter(p=>p.pago&&ks.some(k=>k.id===p.contratoId)).reduce((s,p)=>s+num(p.valorPago||p.valor),0),gm=us.reduce((s,u)=>s+num(u.custo),0);
+  abrirModal(`${h(m.placa)} · ${h(motoNome(m))}`,`<div class="resumo"><div><span>Situação</span><b>${h(statusMoto(m))}</b></div><div><span>KM atual</span><b>${num(m.km).toLocaleString('pt-BR')}</b></div>
+    <div><span>Já recebido</span><b>${brl(rec)}</b></div><div><span>Gasto em manutenção</span><b>${brl(gm)}</b></div></div>
+    ${m.obs?`<p class="mut" style="margin:0 0 12px">${h(m.obs)}</p>`:''}
+    <h4 style="margin:6px 0">Aluguéis</h4>${ks.length?`<div class="lista">${ks.map(k=>{const c=cliente(k.clienteId);return`<div class="item"><div class="tx"><b>${h(c?c.nome:'—')}</b><small>${fdate(k.inicio)} até ${k.fim?fdate(k.fim):'hoje'} · ${brl(k.valor)} ${h(k.freq.toLowerCase())}</small></div><span class="pill ${k.status==='Ativo'?'p-pri':'p-mut'}">${k.status}</span></div>`}).join('')}</div>`:'<p class="mut">Nenhum aluguel ainda.</p>'}
+    <h4 style="margin:14px 0 6px">Manutenções</h4>${us.length?`<div class="lista">${us.map(u=>`<div class="item"><div class="tx"><b>${h(u.tipo)}</b><small>${fdate(u.data)}${u.km?' · '+num(u.km).toLocaleString('pt-BR')+' km':''}${u.desc?' · '+h(u.desc):''}</small></div><div class="vl">${brl(u.custo)}</div></div>`).join('')}</div>`:'<p class="mut">Nenhuma manutenção registrada.</p>'}`,
+    null,'',true,false,`<button type="button" class="btn sec" onclick="formManut('','${id}')">+ Manutenção</button>`)}
+
+/* ---------- clientes ---------- */
+function vClientes(){const b=F.busca.toLowerCase();
+  let cs=[...S.clientes];if(b)cs=cs.filter(c=>(c.nome+' '+c.cpf+' '+c.fone).toLowerCase().includes(b));
+  cs.sort((a,b2)=>(b2.ativo!==false)-(a.ativo!==false)||a.nome.localeCompare(b2.nome));
+  return head('Clientes','Motoristas que alugam as motos',`<button class="btn" onclick="formCliente()">+ Novo cliente</button>`)+
+  `<section class="card"><div class="filtros"><input type="search" placeholder="Buscar nome, CPF ou telefone" value="${h(F.busca)}" oninput="F.busca=this.value;atualizaLista()" aria-label="Buscar"></div>
+  <div id="lst">${cs.length?`<div class="tbl-wrap"><table style="min-width:700px"><thead><tr><th>Nome</th><th>Celular</th><th>CNH</th><th>Moto atual</th><th>Pagamentos</th><th></th></tr></thead><tbody>
+  ${cs.map(c=>{const k=S.contratos.find(x=>x.clienteId===c.id&&x.status==='Ativo'),m=k&&moto(k.motoId),cn=cnhSit(c);
+    const vc=S.parcelas.filter(p=>{const kk=contrato(p.contratoId);return kk&&kk.clienteId===c.id&&situacao(p)==='vencida'});
+    return`<tr><td><b>${h(c.nome)}</b><small>${c.cpf?'CPF '+h(c.cpf):''}${c.ativo===false?' · inativo':''}</small></td>
+    <td class="nw">${c.fone?`${h(fone(c.fone))} <button class="lnk" style="color:var(--wa)" onclick="whatsCliente('${c.id}')" aria-label="WhatsApp de ${h(c.nome)}">${WA_IC}</button>`:'<span class="mut">—</span>'}</td>
+    <td class="nw">${c.cnhCat?'Cat. '+h(c.cnhCat):''}${c.cnhVal?`<small>até ${fdate(c.cnhVal)}</small>`:''}${cn?`<span class="pill ${cn[1]}">${cn[0]}</span>`:''}</td>
+    <td>${m?`${h(m.placa)}<small>${h(motoNome(m))}</small>`:'<span class="mut">—</span>'}</td>
+    <td>${vc.length?`<span class="pill p-bad">${vc.length} em atraso · ${brl(vc.reduce((s,p)=>s+devido(p),0))}</span>`:k?'<span class="pill p-ok">Em dia</span>':'<span class="mut">—</span>'}</td>
+    <td class="acts"><button class="lnk" onclick="formCliente('${c.id}')">Editar</button></td></tr>`}).join('')}
+  </tbody></table></div>`:'<p class="vazio">Nenhum cliente cadastrado.</p>'}</div></section>`}
+function formCliente(id){const c=id?cliente(id):{nome:'',cpf:'',rg:'',fone:'',email:'',nasc:'',cnh:'',cnhCat:'A',cnhVal:'',end:'',ref:'',obs:'',ativo:true};
+  const fs=[{k:'nome',l:'Nome completo',req:1,v:c.nome,w:1},{k:'fone',l:'Celular / WhatsApp',req:1,v:fone(c.fone),ph:'(92) 99999-9999',t:'tel'},{k:'cpf',l:'CPF',v:c.cpf,ph:'000.000.000-00'},
+    {k:'rg',l:'RG',v:c.rg},{k:'nasc',l:'Data de nascimento',t:'date',v:c.nasc},
+    {t:'h4',l:'Habilitação'},{k:'cnh',l:'Nº da CNH',v:c.cnh},{k:'cnhCat',l:'Categoria',t:'select',o:['A','AB','AC','AD','AE'],v:c.cnhCat},{k:'cnhVal',l:'Validade da CNH',t:'date',v:c.cnhVal},{k:'email',l:'E-mail',t:'email',v:c.email},
+    {t:'h4',l:'Endereço e referência'},{k:'end',l:'Endereço',v:c.end,w:1},{k:'ref',l:'Contato de referência (nome e telefone)',v:c.ref,w:1},
+    {k:'obs',l:'Observações',v:c.obs,w:1},...(id?[{k:'ativo',l:'Situação',t:'select',o:[['1','Ativo'],['0','Inativo']],v:c.ativo===false?'0':'1'}]:[])];
+  abrirModal(id?'Editar cliente':'Novo cliente',campos(fs),()=>{const d=ler(fs);if(!d)return false;
+    if(!foneWa(d.fone)){erroModal('Celular inválido. Use DDD + número, ex.: (92) 99999-9999.');return false}
+    d.fone=digitos(d.fone);d.ativo=id?d.ativo!=='0':true;
+    if(id)Object.assign(c,d);else S.clientes.push({id:uid('c'),...d});commit(id?'Cliente atualizado':'Cliente cadastrado')},id?'Salvar':'Cadastrar',false,false,
+    id&&!S.contratos.some(k=>k.clienteId===id)?`<button type="button" class="btn sec" onclick="apagarCliente('${id}')">Apagar</button>`:'')}
+function apagarCliente(id){confirmar('Apagar cliente','O cadastro deste cliente será apagado.',()=>{S.clientes=S.clientes.filter(c=>c.id!==id);commit('Cliente apagado')},'Apagar')}
+
+/* ---------- manutenção ---------- */
+function vManut(){const b=F.busca.toLowerCase();
+  let us=[...S.manut];if(b)us=us.filter(u=>{const m=moto(u.motoId);return((m?m.placa+' '+m.modelo:'')+' '+u.tipo+' '+u.desc+' '+u.oficina).toLowerCase().includes(b)});
+  us.sort((a,b2)=>b2.data.localeCompare(a.data));const ma=manutAlertas();
+  return head('Manutenção','Serviços feitos nas motos e o que está previsto',`<button class="btn" onclick="formManut()">+ Registrar manutenção</button>`)+
+  (ma.length?`<section class="card"><h2>Previstas</h2><div class="lista">${ma.map(a=>`<div class="item"><div class="tx"><b>${h(a.m.placa)} · ${h(motoNome(a.m))}</b><small>${h(a.txt)} · KM atual ${num(a.m.km).toLocaleString('pt-BR')}</small></div><span class="pill ${a.grave?'p-bad':'p-warn'}">${a.grave?'Atrasada':'Em breve'}</span><button class="btn sec pq" onclick="formManut('','${a.m.id}','${h(a.u.tipo)}')">Registrar</button></div>`).join('')}</div></section>`:'')+
+  `<section class="card"><div class="filtros"><input type="search" placeholder="Buscar placa, serviço ou oficina" value="${h(F.busca)}" oninput="F.busca=this.value;atualizaLista()" aria-label="Buscar"></div>
+  <div id="lst">${us.length?`<div class="tbl-wrap"><table style="min-width:700px"><thead><tr><th>Data</th><th>Moto</th><th>Serviço</th><th>Próxima</th><th class="num">Custo</th><th></th></tr></thead><tbody>
+  ${us.map(u=>{const m=moto(u.motoId);return`<tr><td class="nw">${fdate(u.data)}${u.km?`<small>${num(u.km).toLocaleString('pt-BR')} km</small>`:''}</td><td class="nw">${h(m?m.placa:'—')}<small>${h(motoNome(m))}</small></td>
+    <td><b>${h(u.tipo)}</b><small>${h([u.desc,u.oficina].filter(Boolean).join(' · '))}</small></td>
+    <td class="nw">${[u.proxData?fdate(u.proxData):'',num(u.proxKm)?num(u.proxKm).toLocaleString('pt-BR')+' km':''].filter(Boolean).join('<small>')||'<span class="mut">—</span>'}</td>
+    <td class="num">${brl(u.custo)}</td><td class="acts"><button class="lnk" onclick="formManut('${u.id}')">Editar</button></td></tr>`}).join('')}
+  </tbody></table></div>`:'<p class="vazio">Nenhuma manutenção registrada.</p>'}</div></section>`}
+function formManut(id,motoId,tipo){if(!S.motos.length){toast('Cadastre uma moto primeiro');return}
+  const u=id?S.manut.find(x=>x.id===id):{motoId:motoId||'',data:hoje(),tipo:tipo||'Troca de óleo',desc:'',km:motoId?moto(motoId).km:'',custo:'',oficina:'',proxKm:'',proxData:''};
+  const fs=[{k:'motoId',l:'Moto',t:'select',req:1,o:[['','Escolha…'],...S.motos.map(m=>[m.id,`${m.placa} · ${motoNome(m)}`])],v:u.motoId},
+    {k:'data',l:'Data',t:'date',req:1,v:u.data},{k:'tipo',l:'Serviço',t:'select',o:TIPOS_MANUT,v:u.tipo},{k:'km',l:'KM da moto',t:'number',v:u.km},
+    {k:'desc',l:'O que foi feito',v:u.desc,w:1},{k:'custo',l:'Custo (R$)',t:'money',v:u.custo},{k:'oficina',l:'Oficina / mecânico',v:u.oficina},
+    {t:'h4',l:'Próxima (para o aviso)'},{k:'proxKm',l:'Próxima com quantos KM',t:'number',v:u.proxKm||''},{k:'proxData',l:'ou na data',t:'date',v:u.proxData},
+    {t:'dica',l:'Ex.: troca de óleo a cada 1.000 km. O painel avisa 300 km antes ou 7 dias antes da data.'}];
+  abrirModal(id?'Editar manutenção':'Registrar manutenção',campos(fs),()=>{const d=ler(fs);if(!d)return false;
+    if(id)Object.assign(u,d);else S.manut.push({id:uid('u'),...d});
+    const m=moto(d.motoId);if(m&&num(d.km)>num(m.km))m.km=num(d.km);commit(id?'Manutenção atualizada':'Manutenção registrada')},id?'Salvar':'Registrar',false,false,
+    id?`<button type="button" class="btn sec" onclick="apagarManut('${id}')">Apagar</button>`:'')
+  const sel=$('#f_motoId'),km=$('#f_km');if(sel&&!id)sel.onchange=()=>{const m=moto(sel.value);if(m)km.value=m.km||''}}
+function apagarManut(id){confirmar('Apagar manutenção','Este registro de manutenção será apagado.',()=>{S.manut=S.manut.filter(u=>u.id!==id);commit('Manutenção apagada')},'Apagar')}
+
+/* ---------- financeiro ---------- */
+function vFinanceiro(){const mes=F.mes;
+  const pg=S.parcelas.filter(p=>p.pago&&(p.dataPg||'').startsWith(mes)),man=S.manut.filter(u=>(u.data||'').startsWith(mes)&&num(u.custo)),ls=S.lanc.filter(l=>(l.data||'').startsWith(mes));
+  const linhas=[
+    ...pg.map(p=>{const k=contrato(p.contratoId),c=k&&cliente(k.clienteId),m=k&&moto(k.motoId);return{data:p.dataPg,tipo:'receita',cat:'Parcela de aluguel',desc:`${c?c.nome:''} · ${m?m.placa:''} · parcela ${p.n}`,valor:num(p.valorPago||p.valor),forma:p.forma,motoId:k&&k.motoId}}),
+    ...man.map(u=>{const m=moto(u.motoId);return{data:u.data,tipo:'despesa',cat:'Manutenção',desc:`${m?m.placa:''} · ${u.tipo}${u.desc?' — '+u.desc:''}`,valor:num(u.custo),motoId:u.motoId,manutId:u.id}}),
+    ...ls.map(l=>({...l,lancId:l.id}))].sort((a,b)=>b.data.localeCompare(a.data));
+  const rec=linhas.filter(l=>l.tipo==='receita').reduce((s,l)=>s+l.valor,0),desp=linhas.filter(l=>l.tipo==='despesa').reduce((s,l)=>s+l.valor,0);
+  const ab=parcelasAbertas().filter(p=>situacao(p)==='vencida').reduce((s,p)=>s+devido(p),0);
+  // resultado por moto no mês
+  const pm={};linhas.forEach(l=>{if(!l.motoId)return;const r=pm[l.motoId]||(pm[l.motoId]={r:0,d:0});l.tipo==='receita'?r.r+=l.valor:r.d+=l.valor});
+  return head('Financeiro',`Entradas e saídas de ${fmes(mes)}`,`<input type="month" class="btn sec" value="${mes}" onchange="F.mes=this.value||hoje().slice(0,7);render()" aria-label="Mês" style="font-weight:500"><button class="btn sec" onclick="formLanc('','receita')">+ Entrada</button><button class="btn" onclick="formLanc('','despesa')">+ Despesa</button>`)+
+  `<div class="kpis"><div class="kpi ok"><span>Entradas</span><b>${brl(rec)}</b><small>${pg.length} parcela${pg.length===1?'':'s'} recebida${pg.length===1?'':'s'}</small></div>
+    <div class="kpi bad"><span>Saídas</span><b>${brl(desp)}</b><small>manutenção ${brl(man.reduce((s,u)=>s+num(u.custo),0))}</small></div>
+    <div class="kpi ${rec-desp>=0?'ok':'bad'}"><span>Resultado do mês</span><b>${brl(rec-desp)}</b></div>
+    <div class="kpi warn"><span>Em atraso hoje</span><b>${brl(ab)}</b><small>a receber dos motoristas</small></div></div>
+  ${Object.keys(pm).length?`<section class="card"><h2>Por moto <small>${fmes(mes)}</small></h2><div class="tbl-wrap"><table style="min-width:480px"><thead><tr><th>Moto</th><th class="num">Entradas</th><th class="num">Saídas</th><th class="num">Resultado</th></tr></thead><tbody>
+    ${Object.entries(pm).sort((a,b)=>(b[1].r-b[1].d)-(a[1].r-a[1].d)).map(([id,v])=>{const m=moto(id);return`<tr><td class="nw"><b>${h(m?m.placa:'—')}</b><small>${h(motoNome(m))}</small></td><td class="num">${brl(v.r)}</td><td class="num">${brl(v.d)}</td><td class="num" style="color:${v.r-v.d>=0?'var(--ok)':'var(--bad)'};font-weight:600">${brl(v.r-v.d)}</td></tr>`}).join('')}
+  </tbody></table></div></section>`:''}
+  <section class="card"><h2>Movimentações</h2>${linhas.length?`<div class="tbl-wrap"><table style="min-width:660px"><thead><tr><th>Data</th><th>Categoria</th><th>Descrição</th><th class="num">Valor</th><th></th></tr></thead><tbody>
+    ${linhas.map(l=>`<tr><td class="nw">${fdate(l.data)}</td><td class="nw">${h(l.cat)}${l.forma?`<small>${h(l.forma)}</small>`:''}</td><td>${h(l.desc)}</td>
+    <td class="num" style="color:${l.tipo==='receita'?'var(--ok)':'var(--bad)'};font-weight:600">${l.tipo==='receita'?'+':'−'} ${brl(l.valor)}</td>
+    <td class="acts">${l.lancId?`<button class="lnk" onclick="formLanc('${l.lancId}')">Editar</button>`:l.manutId?`<button class="lnk" onclick="formManut('${l.manutId}')">Editar</button>`:''}</td></tr>`).join('')}
+  </tbody></table></div>`:'<p class="vazio">Nenhuma movimentação neste mês.</p>'}
+  <p class="mut" style="font-size:13px;margin:10px 0 0">Parcelas recebidas e manutenções entram aqui sozinhas. Use + Entrada e + Despesa para o resto (IPVA, seguro, rastreador, compra de moto…).</p></section>`}
+function formLanc(id,tipo){const l=id?S.lanc.find(x=>x.id===id):{data:hoje(),tipo,cat:tipo==='receita'?CAT_REC[0]:CAT_DESP[0],desc:'',valor:'',motoId:'',forma:cfg().formas[0]};
+  const fs=[{k:'tipo',l:'Tipo',t:'select',o:[['despesa','Despesa (saída)'],['receita','Entrada']],v:l.tipo},{k:'data',l:'Data',t:'date',req:1,v:l.data},
+    {k:'cat',l:'Categoria',t:'select',o:l.tipo==='receita'?CAT_REC:CAT_DESP,v:l.cat},{k:'valor',l:'Valor (R$)',t:'money',req:1,v:l.valor},
+    {k:'desc',l:'Descrição',v:l.desc,w:1},{k:'motoId',l:'Moto (opcional)',t:'select',o:[['','Geral (nenhuma moto)'],...S.motos.map(m=>[m.id,`${m.placa} · ${motoNome(m)}`])],v:l.motoId},
+    {k:'forma',l:'Forma',t:'select',o:cfg().formas,v:l.forma}];
+  abrirModal(id?'Editar lançamento':l.tipo==='receita'?'Nova entrada':'Nova despesa',campos(fs),()=>{const d=ler(fs);if(!d)return false;if(d.valor<=0){erroModal('Informe o valor.');return false}
+    if(!d.desc)d.desc=d.cat;if(id)Object.assign(l,d);else S.lanc.push({id:uid('l'),...d});commit('Lançamento salvo')},'Salvar',false,false,
+    id?`<button type="button" class="btn sec" onclick="apagarLanc('${id}')">Apagar</button>`:'');
+  $('#f_tipo').onchange=e=>{const o=e.target.value==='receita'?CAT_REC:CAT_DESP;$('#f_cat').innerHTML=o.map(x=>`<option>${h(x)}</option>`).join('')}}
+function apagarLanc(id){confirmar('Apagar lançamento','Este lançamento será apagado.',()=>{S.lanc=S.lanc.filter(l=>l.id!==id);commit('Lançamento apagado')},'Apagar')}
+
+/* ---------- configurações ---------- */
+function vConfig(){const g=cfg();
+  return head('Configurações','Dados da empresa, cobrança e mensagens do WhatsApp')+
+  `<section class="card"><form id="cfgf" onsubmit="salvarCfg(event)">${campos([
+    {t:'h4',l:'Empresa'},{k:'empresa',l:'Nome da empresa',req:1,v:g.empresa},{k:'pix',l:'Chave Pix (vai nas mensagens)',v:g.pix},
+    {t:'h4',l:'Cobrança'},{k:'diasAviso',l:'Avisar quantos dias antes do vencimento',t:'number',v:g.diasAviso},{k:'formas',l:'Formas de pagamento (separe por vírgula)',v:g.formas.join(', ')},
+    {k:'multa',l:'Multa por atraso (%)',t:'money',v:g.multa},{k:'juros',l:'Juros por dia de atraso (%)',t:'money',v:g.juros},
+    {t:'dica',l:'Deixe multa e juros em 0 para cobrar só o valor da parcela.'},
+    {t:'h4',l:'Mensagens do WhatsApp'},{k:'msgAvencer',l:'Parcela a vencer',t:'area',v:g.msgAvencer,w:1},{k:'msgVencida',l:'Parcela vencida',t:'area',v:g.msgVencida,w:1},
+    {t:'dica',l:'Use: {nome} {nome_completo} {empresa} {parcela} {moto} {placa} {valor} {vencimento} {quando} {dias} {pix}'}])}
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap"><button type="button" class="btn sec" onclick="padraoMsgs()">Mensagens padrão</button><button class="btn">Salvar</button></div><div class="merr" id="merr" hidden style="margin-top:10px"></div></form></section>`}
+function salvarCfg(e){e.preventDefault();const g={id:'geral'};
+  for(const k of['empresa','pix','diasAviso','formas','multa','juros','msgAvencer','msgVencida']){const el=$('#f_'+k);g[k]=el.value.trim()}
+  if(!g.empresa){erroModal('Informe o nome da empresa');return}
+  g.diasAviso=Math.max(0,Math.round(num(g.diasAviso)));g.multa=num(g.multa);g.juros=num(g.juros);
+  g.formas=g.formas.split(',').map(s=>s.trim()).filter(Boolean);if(!g.formas.length)g.formas=CFG_PADRAO.formas;
+  const i=S.config.findIndex(c=>c.id==='geral');if(i>=0)S.config[i]={...S.config[i],...g};else S.config.push(g);commit('Configurações salvas')}
+function padraoMsgs(){$('#f_msgAvencer').value=CFG_PADRAO.msgAvencer;$('#f_msgVencida').value=CFG_PADRAO.msgVencida;toast('Mensagens padrão de volta. Clique em Salvar.')}
+
+/* ---------- modo online (servidor próprio) ---------- */
+// Cada moto, cliente, parcela etc. é um registro no servidor. A tela guarda a última versão
+// recebida de cada um (BASE) e envia só o que mudou; a cada 10 s busca o que outras pessoas alteraram.
+let BASE={},VER=0,syncing=false,pendente=false,carregado=!ONLINE,atrasoRender=false;
+async function api(m,url,body){
+  const r=await fetch(url,{method:m,headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined,credentials:'same-origin'});
+  let j={};try{j=await r.json()}catch(e){}
+  if(r.status===401&&url!=='/api/login'&&url!=='/api/me'){U=null;carregado=false;fecharModal();render();throw new Error(j.erro||'Faça login novamente')}
+  if(!r.ok)throw new Error(j.erro||'Erro '+r.status);return j}
+function rede(ok){let n=$('#rede');if(!n){n=document.createElement('div');n.id='rede';n.className='rede';n.setAttribute('role','status');document.body.appendChild(n)}
+  n.textContent='Sem conexão com o servidor. As alterações serão enviadas quando a internet voltar.';n.hidden=ok}
+function aplicar(itens){let mud=false;
+  for(const it of itens){const arr=S[it.c];if(!arr)continue;const b=BASE[it.c]||(BASE[it.c]={});
+    const i=arr.findIndex(x=>x.id===it.id),local=i>=0?JSON.stringify(arr[i]):null,sujo=local!==(b[it.id]??null);
+    if(it.apagado)delete b[it.id];else b[it.id]=JSON.stringify(it.dados);
+    if(sujo)continue; // alteração local ainda não enviada: ela vale
+    if(it.apagado){if(i>=0){arr.splice(i,1);mud=true}}
+    else if(i>=0){if(local!==b[it.id]){arr[i]=it.dados;mud=true}}else{arr.push(it.dados);mud=true}}
+  return mud}
+function mudancas(){const o=[];
+  for(const c of COLS){const b=BASE[c]||(BASE[c]={}),vistos=new Set();
+    for(const x of S[c]||[]){vistos.add(x.id);const js=JSON.stringify(x);if(b[x.id]!==js)o.push({c,id:x.id,dados:x,js})}
+    for(const id in b)if(!vistos.has(id))o.push({c,id,apagar:true})}
+  return o}
+async function enviar(){
+  if(!ONLINE||!U||!carregado)return;if(syncing){pendente=true;return}
+  const o=mudancas();if(!o.length)return;syncing=true;
+  try{const r=await api('POST','/api/sync',{ops:o.map(({js,...x})=>x)});
+    for(const x of o){if(x.apagar)delete BASE[x.c][x.id];else BASE[x.c][x.id]=x.js}
+    rede(true);
+    if(r.recusados){toast('Algumas alterações não foram salvas porque o seu acesso não permite.');syncing=false;return carregar()}
+    await puxar();
+  }catch(e){rede(false)}
+  finally{syncing=false;if(pendente){pendente=false;enviar()}}}
+function podeRender(){const a=document.activeElement;return $('#modal').hidden&&!(a&&/^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName)&&a.closest('#app'))}
+async function puxar(){
+  if(!ONLINE||!U||!carregado)return;
+  try{const r=await api('GET','/api/estado?desde='+VER);VER=r.versao;rede(true);
+    if(aplicar(r.itens)){if(podeRender())render();else atrasoRender=true}
+    if(mudancas().length)enviar()}catch(e){if(U)rede(false)}}
+async function carregar(){
+  S=vazio();BASE={};COLS.forEach(c=>BASE[c]={});VER=0;carregado=false;
+  const r=await api('GET','/api/estado?desde=0');VER=r.versao;aplicar(r.itens);carregado=true;
+  gerarParcelas();render();enviar()}
+function telaLogin(){return`<div class="login"><form onsubmit="entrarOnline(event)">
+  <div style="text-align:center">${LOGO.replace('width="34" height="34"','width="56" height="56"')}</div><h1>Moura Aluguéis</h1><p>Entre com seu usuário e senha</p>
+  <div class="merr" id="lg_err" hidden></div>
+  <input id="lg_u" autocomplete="username" placeholder="Usuário" aria-label="Usuário" required autocapitalize="none">
+  <input id="lg_s" type="password" autocomplete="current-password" placeholder="Senha" aria-label="Senha" required>
+  <button class="btn" type="submit">Entrar</button></form></div>`}
+async function entrarOnline(e){e.preventDefault();const er=$('#lg_err'),bt=e.target.querySelector('button[type=submit]');er.hidden=true;bt.disabled=true;
+  try{U=await api('POST','/api/login',{login:$('#lg_u').value.trim(),senha:$('#lg_s').value});render();await carregar()}
+  catch(x){U=null;render();const e2=$('#lg_err');if(e2){e2.textContent=x.message;e2.hidden=false}}finally{bt.disabled=false}}
+async function sairOnline(){try{await api('POST','/api/logout')}catch(e){}U=null;carregado=false;S=vazio();BASE={};render()}
+function minhaSenha(){
+  const fs=[{k:'atual',l:'Senha atual',t:'password',req:1,w:1},{k:'nova',l:'Nova senha (mínimo 6 caracteres)',t:'password',req:1},{k:'conf',l:'Repita a nova senha',t:'password',req:1}];
+  abrirModal('Minha senha',campos(fs),()=>{const d=ler(fs);if(!d)return false;
+    if(d.nova!==d.conf){erroModal('As duas senhas novas não são iguais.');return false}
+    api('POST','/api/me/senha',{atual:d.atual,nova:d.nova}).then(()=>{fecharModal();toast('Senha alterada')}).catch(x=>erroModal(x.message));return false},'Trocar senha')}
+let USUARIOS=null;
+const perfilNome=p=>p==='admin'?'Administrador':'Equipe';
+function vAcessos(){
+  setTimeout(carregarUsuarios);
+  return head('Acessos','Quem pode entrar no sistema',`<button class="btn" onclick="formUsuario()">+ Novo acesso</button>`)+
+  `<section class="card"><div id="usrTbl">${USUARIOS?tblUsuarios():'<p class="vazio">Carregando…</p>'}</div></section>
+  <p class="mut" style="margin:0;font-size:13px">Administrador vê tudo. Equipe cuida de motos, clientes, aluguéis, cobranças e manutenção, mas não vê o financeiro, as configurações nem os acessos.</p>`}
+async function carregarUsuarios(){try{USUARIOS=await api('GET','/api/usuarios');const t=$('#usrTbl');if(t)t.innerHTML=tblUsuarios()}catch(e){toast(e.message)}}
+function tblUsuarios(){
+  return`<div class="tbl-wrap"><table style="min-width:520px"><thead><tr><th>Nome</th><th>Usuário</th><th>Perfil</th><th>Situação</th><th></th></tr></thead><tbody>
+  ${USUARIOS.map(u=>`<tr><td><b>${h(u.nome)}</b>${u.id===U.id?'<small>você</small>':''}</td><td class="nw">${h(u.login)}</td><td>${perfilNome(u.perfil)}</td>
+    <td><span class="pill ${u.ativo?'p-ok':'p-mut'}">${u.ativo?'Ativo':'Inativo'}</span></td><td class="acts"><button class="lnk" onclick="formUsuario(${u.id})">Editar</button></td></tr>`).join('')}</tbody></table></div>`}
+function formUsuario(id){
+  const u=id?USUARIOS.find(x=>x.id===id):{nome:'',login:'',perfil:'equipe',ativo:1};
+  const fs=[{k:'nome',l:'Nome',req:1,v:u.nome,w:1},
+    ...(id?[]:[{k:'login',l:'Usuário (para entrar)',req:1,v:'',ph:'ex.: joao'}]),
+    {k:'perfil',l:'Perfil',t:'select',o:[['equipe','Equipe'],['admin','Administrador']],v:u.perfil},
+    ...(id?[{k:'ativo',l:'Situação',t:'select',o:[['1','Ativo'],['0','Inativo (não consegue entrar)']],v:String(u.ativo)}]:[]),
+    {k:'senha',l:id?'Nova senha (deixe vazio para manter)':'Senha (mínimo 6 caracteres)',t:'password',req:!id,v:''}];
+  abrirModal(id?'Editar acesso':'Novo acesso',campos(fs),()=>{const d=ler(fs);if(!d)return false;
+    const req=id?api('PUT','/api/usuarios/'+id,{nome:d.nome,perfil:d.perfil,ativo:d.ativo==='1',senha:d.senha||undefined}):api('POST','/api/usuarios',d);
+    req.then(()=>{fecharModal();toast(id?'Acesso atualizado':'Acesso criado para '+d.nome);carregarUsuarios()}).catch(x=>erroModal(x.message));return false},id?'Salvar':'Criar acesso')}
+
+/* ---------- início ---------- */
+if(ONLINE){
+  api('GET','/api/me').then(u=>{U=u;render();return carregar()}).catch(()=>{U=null;render()});
+  setInterval(puxar,10000);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)puxar()});
+  // vira o dia com o sistema aberto: gera as parcelas novas
+  setInterval(()=>{if(carregado&&gerarParcelas()){save();if(podeRender())render()}},3600e3);
+}else{if(gerarParcelas())save()}
+render();
+</script>
+</body>
+</html>

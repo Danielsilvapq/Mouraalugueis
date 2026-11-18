@@ -1,0 +1,10 @@
+{
+  "name": "mouraalugueis",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sistema da Moura Aluguéis: motos, clientes, aluguéis, parcelas, manutenção e financeiro",
+  "scripts": {
+    "start": "node --no-warnings server.js"
+  },
+  "engines": { "node": ">=22.13" }
+}
