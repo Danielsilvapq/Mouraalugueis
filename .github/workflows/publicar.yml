@@ -55,6 +55,21 @@ jobs:
             --exclude '*.command' --exclude Manuais \
             ./ "$USUARIO@$IP:/opt/mouraalugueis/"
 
+      - name: WhatsApp automático (só se os secrets existirem)
+        env:
+          WA_TOKEN: ${{ secrets.WHATSAPP_TOKEN }}
+          WA_PHONE_ID: ${{ secrets.WHATSAPP_PHONE_ID }}
+        run: |
+          if [ -z "$WA_TOKEN" ] || [ -z "$WA_PHONE_ID" ]; then
+            echo "WhatsApp automático ainda não configurado (faltam os secrets WHATSAPP_TOKEN e WHATSAPP_PHONE_ID). Seguindo sem ele."
+            exit 0
+          fi
+          case "$WA_PHONE_ID" in *[!0-9]*) echo "::error::WHATSAPP_PHONE_ID deve ter só números."; exit 1;; esac
+          # vai pela entrada padrão (não aparece em log nem na lista de processos do servidor)
+          printf 'WHATSAPP_TOKEN=%s\nWHATSAPP_PHONE_ID=%s\n' "$WA_TOKEN" "$WA_PHONE_ID" | ssh -i ~/.ssh/servidor "$USUARIO@$IP" \
+            'sudo sh -c "umask 077; cat > /etc/mouraalugueis-whatsapp.env"'
+          echo "Token do WhatsApp enviado ao servidor."
+
       - name: Instalar no servidor
         run: ssh -i ~/.ssh/servidor "$USUARIO@$IP" "sudo bash /opt/mouraalugueis/servidor/deploy/instalar.sh '$DOMINIO'"
 

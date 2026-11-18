@@ -194,6 +194,9 @@ const CAT_REC=['Caução recebida','Venda de moto','Multa repassada','Outros'];
 const CFG_PADRAO={id:'geral',empresa:'Moura Aluguéis',pix:'',diasAviso:2,multa:0,juros:0,formas:['Pix','Dinheiro','Cartão','Transferência'],
   msgAvencer:'Olá, {nome}! Aqui é da {empresa}. Passando para lembrar que a parcela {parcela} do aluguel da moto {moto} ({placa}), no valor de {valor}, vence {quando} ({vencimento}).{pix} Obrigado!',
   msgVencida:'Olá, {nome}! Aqui é da {empresa}. A parcela {parcela} do aluguel da moto {moto} ({placa}), no valor de {valor}, venceu em {vencimento} e está em atraso há {dias}. Por favor, regularize o pagamento o quanto antes.{pix} Se já pagou, desconsidere esta mensagem.'};
+const AUTO_PADRAO={id:'auto',ativo:false,hora:'09:00',avencer:true,hoje:true,vencidas:true,intervalo:2,maxAtraso:30,teste:true,foneTeste:'',idioma:'pt_BR',
+  modelos:{avencer:'parcela_a_vencer',hoje:'parcela_vence_hoje',vencida:'parcela_vencida'}};
+function cfgAuto(){const a=S.config.find(c=>c.id==='auto')||{};return{...AUTO_PADRAO,...a,modelos:{...AUTO_PADRAO.modelos,...(a.modelos||{})}}}
 function vazio(){const o={};COLS.forEach(c=>o[c]=[]);return o}
 function cfg(){return{...CFG_PADRAO,...(S.config.find(c=>c.id==='geral')||{})}}
 
@@ -260,6 +263,7 @@ const SIT={paga:['Paga','p-ok'],vencida:['Vencida','p-bad'],hoje:['Vence hoje','
 const pillSit=p=>{const s=situacao(p),[t,c]=SIT[s];let x=t;if(s==='vencida'){const d=difDias(p.venc,hoje());x+=` · ${d} dia${d>1?'s':''}`}else if(s==='avencer'){const d=difDias(hoje(),p.venc);x=d===1?'Vence amanhã':`Vence em ${d} dias`}return`<span class="pill ${c}">${x}</span>`};
 const parcelasAbertas=()=>S.parcelas.filter(p=>!p.pago&&contrato(p.contratoId));
 const avisadoHoje=p=>(p.avisos||[]).some(a=>a.data===hoje());
+const avisoHojeTx=p=>(p.avisos||[]).some(a=>a.data===hoje()&&a.auto)?'Avisado hoje (automático)':'Avisado hoje';
 const totalParc=k=>k.qtd?`${k.qtd}x`:'sem prazo';
 function cnhSit(c){if(!c.cnhVal)return null;const d=difDias(hoje(),c.cnhVal);if(d<0)return['CNH vencida','p-bad'];if(d<=30)return['CNH vence em '+d+' dia'+(d===1?'':'s'),'p-warn'];return null}
 function manutAlertas(){const out=[];const t=hoje();
@@ -287,7 +291,7 @@ function whatsParcela(pid){const p=S.parcelas.find(x=>x.id===pid),k=contrato(p.c
   abrirModal(`WhatsApp para ${h(c?c.nome:'')}`,
     `${nro?'':`<div class="merr">Este cliente não tem um celular válido cadastrado. Corrija em Clientes → Editar.</div>`}
     <div class="form"><label class="w">Mensagem (pode editar antes de enviar)<textarea id="wa_txt" rows="7">${h(msgParcela(p))}</textarea></label>
-    <p class="dica">Vai para ${h(fone(c&&c.fone))||'—'}.${ult?` Último aviso desta parcela: ${fdate(ult.data)}.`:''}</p></div>`,
+    <p class="dica">Vai para ${h(fone(c&&c.fone))||'—'}.${ult?` Último aviso desta parcela: ${fdate(ult.data)}${ult.auto?' (automático)':''}.`:''}</p></div>`,
     null,'',false,false,
     `<a class="btn wa" id="wa_go" href="#" target="_blank" rel="noopener" ${nro?'':'aria-disabled="true" style="opacity:.5;pointer-events:none"'}>${WA_IC}Abrir no WhatsApp</a>`);
   $('#wa_go').onclick=()=>{$('#wa_go').href=`https://wa.me/${nro}?text=${encodeURIComponent($('#wa_txt').value)}`;
@@ -354,7 +358,7 @@ function limparDemo(){confirmar('Começar vazio','Todos os dados desta demonstra
 /* ---------- painel ---------- */
 function linhaCobranca(p){const k=contrato(p.contratoId),c=cliente(k.clienteId),m=moto(k.motoId);
   return`<div class="item"><div class="tx"><b>${h(c?c.nome:'—')}</b><small>${h(motoNome(m))} · ${h(m?m.placa:'')} · parcela ${k.qtd?p.n+'/'+k.qtd:p.n} · vence ${fdate(p.venc)}</small>
-    <div style="margin-top:4px">${pillSit(p)}${avisadoHoje(p)?' <span class="pill p-info">Avisado hoje</span>':''}</div></div>
+    <div style="margin-top:4px">${pillSit(p)}${avisadoHoje(p)?` <span class="pill p-info">${avisoHojeTx(p)}</span>`:''}</div></div>
     <div class="vl">${brl(devido(p))}</div>
     <div class="bt"><button class="btn wa pq" onclick="whatsParcela('${p.id}')">${WA_IC}Avisar</button><button class="btn sec pq" onclick="receber('${p.id}')">Receber</button></div></div>`}
 function vPainel(){const t=hoje(),mes=t.slice(0,7);
@@ -403,7 +407,7 @@ function vCobrancas(){
       return`<tr><td><b>${h(c?c.nome:'—')}</b><small>${h(fone(c&&c.fone))}</small></td><td class="nw">${h(m?m.placa:'—')}<small>${h(motoNome(m))}</small></td>
       <td class="nw">${k.qtd?p.n+'/'+k.qtd:'nº '+p.n}<small>${h(k.freq)}</small></td><td class="nw">${fdate(p.venc)}${p.pago?`<small>pago ${fdate(p.dataPg)}${p.forma?' · '+h(p.forma):''}</small>`:''}</td>
       <td class="num">${brl(p.pago?num(p.valorPago||p.valor):devido(p))}${enc?`<small>+ ${brl(enc)} encargos</small>`:''}</td>
-      <td>${pillSit(p)}${avisadoHoje(p)?'<small>avisado hoje</small>':''}</td>
+      <td>${pillSit(p)}${avisadoHoje(p)?`<small>${avisoHojeTx(p).toLowerCase()}</small>`:''}</td>
       <td class="acts">${p.pago?`<button class="lnk" onclick="recibo('${p.id}')">Recibo</button><button class="lnk bad" onclick="desfazerPg('${p.id}')">Desfazer</button>`:`<button class="lnk" style="color:var(--wa)" onclick="whatsParcela('${p.id}')">WhatsApp</button><button class="lnk" onclick="receber('${p.id}')">Receber</button>`}</td></tr>`}).join('')}
     </tbody></table></div>`:'<p class="vazio">Nenhuma parcela aqui.</p>'}</div></section>`}
 function atualizaLista(){const v=view,html=({cobrancas:vCobrancas,motos:vMotos,clientes:vClientes,contratos:vContratos,manut:vManut}[v]||(()=>''))();
@@ -555,10 +559,11 @@ function formCliente(id){const c=id?cliente(id):{nome:'',cpf:'',rg:'',fone:'',em
     {k:'rg',l:'RG',v:c.rg},{k:'nasc',l:'Data de nascimento',t:'date',v:c.nasc},
     {t:'h4',l:'Habilitação'},{k:'cnh',l:'Nº da CNH',v:c.cnh},{k:'cnhCat',l:'Categoria',t:'select',o:['A','AB','AC','AD','AE'],v:c.cnhCat},{k:'cnhVal',l:'Validade da CNH',t:'date',v:c.cnhVal},{k:'email',l:'E-mail',t:'email',v:c.email},
     {t:'h4',l:'Endereço e referência'},{k:'end',l:'Endereço',v:c.end,w:1},{k:'ref',l:'Contato de referência (nome e telefone)',v:c.ref,w:1},
+    {k:'semAuto',l:'Cobrança automática no WhatsApp',t:'select',o:[['0','Recebe (quando estiver ligada)'],['1','Não recebe, só aviso manual']],v:c.semAuto?'1':'0'},
     {k:'obs',l:'Observações',v:c.obs,w:1},...(id?[{k:'ativo',l:'Situação',t:'select',o:[['1','Ativo'],['0','Inativo']],v:c.ativo===false?'0':'1'}]:[])];
   abrirModal(id?'Editar cliente':'Novo cliente',campos(fs),()=>{const d=ler(fs);if(!d)return false;
     if(!foneWa(d.fone)){erroModal('Celular inválido. Use DDD + número, ex.: (92) 99999-9999.');return false}
-    d.fone=digitos(d.fone);d.ativo=id?d.ativo!=='0':true;
+    d.fone=digitos(d.fone);d.ativo=id?d.ativo!=='0':true;d.semAuto=d.semAuto==='1';
     if(id)Object.assign(c,d);else S.clientes.push({id:uid('c'),...d});commit(id?'Cliente atualizado':'Cliente cadastrado')},id?'Salvar':'Cadastrar',false,false,
     id&&!S.contratos.some(k=>k.clienteId===id)?`<button type="button" class="btn sec" onclick="apagarCliente('${id}')">Apagar</button>`:'')}
 function apagarCliente(id){confirmar('Apagar cliente','O cadastro deste cliente será apagado.',()=>{S.clientes=S.clientes.filter(c=>c.id!==id);commit('Cliente apagado')},'Apagar')}
@@ -636,7 +641,50 @@ function vConfig(){const g=cfg();
     {t:'dica',l:'Deixe multa e juros em 0 para cobrar só o valor da parcela.'},
     {t:'h4',l:'Mensagens do WhatsApp'},{k:'msgAvencer',l:'Parcela a vencer',t:'area',v:g.msgAvencer,w:1},{k:'msgVencida',l:'Parcela vencida',t:'area',v:g.msgVencida,w:1},
     {t:'dica',l:'Use: {nome} {nome_completo} {empresa} {parcela} {moto} {placa} {valor} {vencimento} {quando} {dias} {pix}'}])}
-  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap"><button type="button" class="btn sec" onclick="padraoMsgs()">Mensagens padrão</button><button class="btn">Salvar</button></div><div class="merr" id="merr" hidden style="margin-top:10px"></div></form></section>`}
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap"><button type="button" class="btn sec" onclick="padraoMsgs()">Mensagens padrão</button><button class="btn">Salvar</button></div><div class="merr" id="merr" hidden style="margin-top:10px"></div></form></section>`+vAuto()}
+/* ---------- WhatsApp automático (preparado; liga depois) ---------- */
+let WAST=null,WAPREV=null;
+const TIPO_WA={avencer:'A vencer',hoje:'Vence hoje',vencida:'Vencida'};
+function vAuto(){const a=cfgAuto(),sn=[['1','Sim'],['0','Não']];
+  if(ONLINE&&!WAST)setTimeout(carregarWa);
+  const conf=ONLINE?(WAST?WAST.configurado:null):false;
+  const st=!ONLINE?['Só na versão online','p-mut']:conf===null?['Verificando…','p-mut']:!conf?['Aguardando token da Meta','p-warn']:!a.ativo?['Pronto, mas desligado','p-info']:a.teste?['Ligado em modo teste','p-warn']:['Ligado','p-ok'];
+  return`<section class="card" id="wa-auto"><h2>WhatsApp automático <span class="pill ${st[1]}">${st[0]}</span></h2>
+  <p class="mut" style="margin:0 0 14px;font-size:14px">Quando ligado, o sistema manda sozinho, uma vez por dia, os avisos das parcelas a vencer, das que vencem no dia e das vencidas, pela API oficial do WhatsApp.
+  Enquanto não estiver configurado, nada é enviado e a cobrança segue manual pelo botão <b>Avisar</b>. Passo a passo: <b>Manuais/WhatsApp automático.md</b>.</p>
+  <form id="autof" onsubmit="salvarAuto(event)">${campos([
+    {k:'ativo',l:'Envio automático',t:'select',o:[['0','Desligado'],['1','Ligado']],v:a.ativo?'1':'0'},{k:'hora',l:'Horário do envio',t:'time',v:a.hora},
+    {k:'avencer',l:'Avisar parcelas a vencer',t:'select',o:sn,v:a.avencer?'1':'0'},{k:'hoje',l:'Avisar no dia do vencimento',t:'select',o:sn,v:a.hoje?'1':'0'},
+    {k:'vencidas',l:'Cobrar parcelas vencidas',t:'select',o:sn,v:a.vencidas?'1':'0'},{k:'intervalo',l:'Repetir a cobrança de vencidas a cada (dias)',t:'number',v:a.intervalo},
+    {k:'maxAtraso',l:'Parar de cobrar depois de quantos dias de atraso',t:'number',v:a.maxAtraso},
+    {k:'teste',l:'Modo teste',t:'select',o:[['1','Ligado: manda só para o celular de teste (até 3)'],['0','Desligado: manda para os motoristas']],v:a.teste?'1':'0'},
+    {k:'foneTeste',l:'Celular de teste',t:'tel',v:fone(a.foneTeste),ph:'(92) 99999-9999'},{k:'idioma',l:'Idioma dos modelos',v:a.idioma},
+    {t:'h4',l:'Nomes dos modelos aprovados na Meta'},
+    {k:'mAvencer',l:'Parcela a vencer',v:a.modelos.avencer},{k:'mHoje',l:'Vence hoje',v:a.modelos.hoje},{k:'mVencida',l:'Parcela vencida',v:a.modelos.vencida},
+    {t:'dica',l:'A antecedência do aviso segue o campo "Avisar quantos dias antes do vencimento" lá em cima. Quem foi avisado no dia (manual ou automático) não recebe de novo. Cliente marcado como "só aviso manual" fica de fora.'}])}
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap">
+    ${ONLINE?`<button type="button" class="btn sec" onclick="previaWa()">Quem receberia hoje</button>${conf?`<button type="button" class="btn sec" onclick="enviarWaAgora()">Enviar agora</button>`:''}`:''}<button class="btn">Salvar</button></div></form>
+  <div id="waprev">${WAPREV?tblPrevia():''}</div>
+  ${ONLINE&&WAST&&WAST.envios.length?`<h4 style="margin:18px 0 6px">Últimos envios${WAST.ultima?` <small class="mut" style="font-weight:400">· última rodada ${new Date(WAST.ultima.quando).toLocaleString('pt-BR')}: ${WAST.ultima.enviados} enviada(s), ${WAST.ultima.erros} erro(s)</small>`:''}</h4>
+  <div class="tbl-wrap"><table style="min-width:600px"><thead><tr><th>Quando</th><th>Cliente</th><th>Tipo</th><th>Situação</th></tr></thead><tbody>
+  ${WAST.envios.map(e=>`<tr><td class="nw">${h(e.criado_em.slice(8,10)+'/'+e.criado_em.slice(5,7)+' '+e.criado_em.slice(11,16))}</td><td>${h(e.cliente)}<small>${h(fone(String(e.fone).replace(/^55/,'')))}</small></td><td>${h(TIPO_WA[e.tipo]||e.tipo)}</td>
+    <td><span class="pill ${e.status==='enviado'?'p-ok':e.status==='teste'?'p-info':'p-bad'}">${e.status==='enviado'?'Enviado':e.status==='teste'?'Teste':'Erro'}</span>${e.erro?`<small>${h(e.erro)}</small>`:''}</td></tr>`).join('')}
+  </tbody></table></div>`:''}</section>`}
+function tblPrevia(){return WAPREV.length?`<h4 style="margin:18px 0 6px">Receberiam hoje (${WAPREV.length})</h4><div class="tbl-wrap"><table style="min-width:520px"><thead><tr><th>Cliente</th><th>Tipo</th><th>Vencimento</th><th class="num">Valor</th></tr></thead><tbody>
+  ${WAPREV.map(x=>`<tr><td>${h(x.cliente)}<small>${x.fone?h(fone(x.fone.replace(/^55/,''))):'<span style="color:var(--bad)">celular inválido</span>'}</small></td><td>${h(TIPO_WA[x.tipo])}</td><td class="nw">${fdate(x.venc)}</td><td class="num">${brl(x.valor)}</td></tr>`).join('')}
+  </tbody></table></div>`:'<p class="vazio">Ninguém para avisar hoje (ou já foram avisados).</p>'}
+async function carregarWa(){try{WAST=await api('GET','/api/whatsapp/status');if(view==='config'&&podeRender())render()}catch(e){WAST={configurado:false,envios:[],ultima:null}}}
+async function previaWa(){try{WAPREV=await api('GET','/api/whatsapp/previa');$('#waprev').innerHTML=tblPrevia()}catch(e){toast(e.message)}}
+function enviarWaAgora(){const a=cfgAuto();
+  confirmar('Enviar agora',a.teste?'Modo teste: até 3 mensagens vão para o celular de teste.':'As mensagens vão agora para os motoristas da lista "Quem receberia hoje".',()=>{
+    api('POST','/api/whatsapp/enviar-agora').then(r=>{if(r.erro)toast(r.erro);else toast(`${r.enviados} enviada(s), ${r.erros} erro(s)`);WAST=null;WAPREV=null;render()}).catch(x=>toast(x.message))},'Enviar')}
+function salvarAuto(e){e.preventDefault();const v=k=>$('#f_'+k).value.trim(),a=cfgAuto();
+  const n={...a,ativo:v('ativo')==='1',hora:v('hora')||'09:00',avencer:v('avencer')==='1',hoje:v('hoje')==='1',vencidas:v('vencidas')==='1',
+    intervalo:Math.max(1,Math.round(num(v('intervalo')))),maxAtraso:Math.max(1,Math.round(num(v('maxAtraso')))),teste:v('teste')==='1',
+    foneTeste:digitos(v('foneTeste')),idioma:v('idioma')||'pt_BR',modelos:{avencer:v('mAvencer')||AUTO_PADRAO.modelos.avencer,hoje:v('mHoje')||AUTO_PADRAO.modelos.hoje,vencida:v('mVencida')||AUTO_PADRAO.modelos.vencida}};
+  if(n.teste&&n.ativo&&!foneWa(n.foneTeste)){toast('No modo teste, informe um celular de teste válido');return}
+  const i=S.config.findIndex(c=>c.id==='auto');if(i>=0)S.config[i]=n;else S.config.push(n);
+  commit(n.ativo?(n.teste?'Automático ligado em modo teste':'Automático ligado'):'Configuração salva')}
 function salvarCfg(e){e.preventDefault();const g={id:'geral'};
   for(const k of['empresa','pix','diasAviso','formas','multa','juros','msgAvencer','msgVencida']){const el=$('#f_'+k);g[k]=el.value.trim()}
   if(!g.empresa){erroModal('Informe o nome da empresa');return}

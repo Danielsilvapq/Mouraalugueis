@@ -218,6 +218,9 @@ rota('PUT', '/api/usuarios/:id', ({ body, params, user }) => {
 rota('GET', '/api/estado', ({ user, query }) => estado(user, Math.max(0, Number(query.get('desde')) || 0)));
 rota('POST', '/api/sync', ({ user, body }) => sincronizar(user, body.ops));
 
+// envio automático de cobranças pelo WhatsApp (desligado até ser configurado)
+require('./whatsapp')({ db, rota, transacao, fmtData });
+
 // ---------- servidor HTTP ----------
 const TIPOS = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',
   '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon', '.json': 'application/json',
