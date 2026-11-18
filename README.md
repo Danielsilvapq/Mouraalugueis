@@ -3,7 +3,7 @@
 Sistema da locadora de motos: cadastro de motos e clientes (motoristas), aluguéis com parcelas
 geradas automaticamente, cobrança pelo WhatsApp, manutenção e financeiro.
 
-- **Demonstração:** abra `index.html` direto no navegador. Os dados são fictícios e ficam salvos só no navegador.
+- **Demonstração:** https://danielsilvapq.github.io/Mouraalugueis/ (ou abra `index.html` direto no navegador). Os dados são fictícios e ficam salvos só no navegador de quem abre. Publicada sozinha pelo GitHub Pages (`.github/workflows/demonstracao.yml`).
 - **Online (uso real):** o mesmo `index.html` servido pelo `servidor/` entra no modo online, com login e dados guardados no servidor. Veja `Manuais/Como colocar online.md`.
 
 ## O que o sistema faz

@@ -1,0 +1,46 @@
+# Publica a DEMONSTRAÇÃO (dados fictícios) no GitHub Pages:
+#   https://danielsilvapq.github.io/Mouraalugueis/
+# Vai só a tela (index.html) e os ícones. O servidor, os manuais e os dados reais não entram.
+# Atualiza sozinha a cada mudança na tela; também dá para rodar em Actions → Demonstração → Run workflow.
+# Precisa (uma vez só): Settings → Pages → Source: "GitHub Actions".
+name: Demonstração
+
+on:
+  push:
+    branches: [main]
+    paths: ['index.html', 'assets/**', '.github/workflows/demonstracao.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: demonstracao
+  cancel-in-progress: true
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Montar o site (só a tela e os ícones)
+        run: |
+          mkdir -p _site
+          cp index.html _site/
+          cp -r assets _site/
+          # a demonstração não aparece em buscas do Google
+          sed -i 's|<title>Moura Aluguéis</title>|<title>Moura Aluguéis — demonstração</title>\n<meta name="robots" content="noindex">|' _site/index.html
+          touch _site/.nojekyll
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deploy
+        uses: actions/deploy-pages@v4
